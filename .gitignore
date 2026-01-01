@@ -1,0 +1,14 @@
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# --- Python ---
+__pycache__/
+
+# --- OS System Files ---
+.DS_Store
+Thumbs.db
+
+# --- Artifacts (Build files) ---
+*.zip
