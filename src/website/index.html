@@ -216,16 +216,17 @@
         h2 i { color: var(--accent); }
 
         .cert-box {
-            background: linear-gradient(to right, #f8fafc, #ffffff);
+            background: #ffffff; 
             padding: 20px 25px;
             border-radius: 10px;
-            border-left: 5px solid var(--accent);
+            border: 1px solid #eee; /* 纯白背景建议加个全框 */
+            border-left: 5px solid var(--accent); /* 保留你的特色橙色边框 */
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
         .verify-link {
@@ -357,7 +358,7 @@
         .lang-status {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #d17d00;
+            color: #ff9900;
             background: rgba(255, 153, 0, 0.1);
             padding: 4px 12px;
             border-radius: 20px;
