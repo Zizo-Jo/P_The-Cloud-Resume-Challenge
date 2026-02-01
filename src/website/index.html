@@ -6,11 +6,10 @@
     <title>Zihao Zhou | Cloud Engineer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- 1. Global Variables & Reset --- */
         :root {
-            --primary: #232f3e;       /* AWS Dark Blue */
+            --primary: #232f3e;
             --primary-dark: #1a232f;
-            --accent: #ff9900;        /* AWS Orange */
+            --accent: #ff9900;
             --text-main: #333;
             --text-light: #555;
             --bg-body: #f8f9fa;
@@ -18,9 +17,6 @@
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 15px 30px rgba(0, 0, 0, 0.15);
             --radius: 12px;
-            /* Language Bar Colors */
-            --bar-bg: #e9ecef;
-            --bar-fill: #232f3e;
         }
 
         * { box-sizing: border-box; }
@@ -35,14 +31,9 @@
             overflow-x: hidden;
         }
 
-        /* --- 2. Animations --- */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fillBar {
-            from { width: 0; }
         }
 
         @keyframes pulse-green {
@@ -57,7 +48,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- 3. Header Section (Hero) --- */
         header {
             background: linear-gradient(-45deg, var(--primary), #1e2a38, #2c3e50, #232f3e);
             background-size: 400% 400%;
@@ -86,7 +76,6 @@
             font-weight: 300;
         }
 
-        /* Language Switcher */
         .lang-switch {
             position: absolute;
             top: 20px;
@@ -115,7 +104,6 @@
             transform: translateY(-2px);
         }
 
-        /* Social Links */
         .social-links {
             margin-top: 25px;
             display: flex;
@@ -145,7 +133,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        /* --- 4. Counter Badge --- */
         .counter-wrapper {
             display: flex;
             justify-content: center;
@@ -167,7 +154,7 @@
         .status-dot {
             width: 12px;
             height: 12px;
-            background-color: #00ff88; /* Bright Green */
+            background-color: #00ff88;
             border-radius: 50%;
             margin-right: 12px;
             animation: pulse-green 2s infinite;
@@ -188,10 +175,9 @@
             letter-spacing: 1px;
         }
 
-        /* --- 5. Main Layout --- */
         .container {
             max-width: 950px;
-            margin: -60px auto 60px; /* Overlap header */
+            margin: -60px auto 60px;
             padding: 0 20px;
             position: relative;
             z-index: 10;
@@ -215,7 +201,6 @@
             box-shadow: var(--shadow-hover);
         }
 
-        /* Section Titles */
         h2 {
             color: var(--primary);
             font-size: 1.6rem;
@@ -230,9 +215,6 @@
         
         h2 i { color: var(--accent); }
 
-        /* --- 6. Content Styling --- */
-        
-        /* Certs */
         .cert-box {
             background: linear-gradient(to right, #f8fafc, #ffffff);
             padding: 20px 25px;
@@ -267,7 +249,6 @@
             border-color: var(--primary);
         }
 
-        /* Skills */
         .skill-category { margin-bottom: 25px; }
         .skill-category:last-child { margin-bottom: 0; }
         
@@ -305,7 +286,6 @@
             transform: scale(1.05);
         }
 
-        /* Projects */
         .project-item {
             margin-bottom: 30px;
             padding: 25px;
@@ -347,42 +327,42 @@
             text-align: justify;
         }
 
-        /* --- 7. Language Bars (UPDATED) --- */
-        .lang-item {
-            margin-bottom: 15px;
-        }
-        
-        .lang-header {
+        .lang-list {
             display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lang-entry {
+            display: flex;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #edf2f7;
+            transition: 0.2s;
+        }
+
+        .lang-entry:hover {
+            background: #fff;
+            border-color: var(--accent);
+        }
+
+        .lang-name {
+            font-weight: 700;
             color: var(--primary);
         }
 
-        .lang-bar-bg {
-            background-color: var(--bar-bg);
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
+        .lang-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #d17d00;
+            background: rgba(255, 153, 0, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
         }
 
-        .lang-bar-fill {
-            background-color: var(--bar-fill);
-            height: 100%;
-            border-radius: 4px;
-            width: 0; /* Animated */
-            animation: fillBar 1.5s ease-out forwards;
-        }
-        
-        .lang-level {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            font-weight: 400;
-        }
-
-        /* Footer */
         footer {
             text-align: center;
             padding: 40px;
@@ -392,7 +372,6 @@
             border-top: 1px solid #ddd;
         }
 
-        /* Utility */
         .hidden { display: none !important; }
 
         @media (max-width: 600px) {
@@ -400,6 +379,7 @@
             .cert-box { flex-direction: column; align-items: flex-start; }
             .lang-switch { top: 15px; right: 15px; }
             .counter-wrapper { margin-top: 20px; }
+            .lang-entry { flex-direction: column; align-items: flex-start; gap: 5px; }
         }
     </style>
 </head>
@@ -442,7 +422,6 @@
     <div class="container">
 
         <div class="lang-en">
-            
             <section class="card">
                 <h2><i class="fas fa-certificate"></i> Certifications</h2>
                 <div class="cert-box">
@@ -506,32 +485,24 @@
 
             <section class="card">
                 <h2><i class="fas fa-language"></i> Languages</h2>
-                <div class="lang-item">
-                    <div class="lang-header">
-                        <span>English</span>
-                        <span class="lang-level">Fluent</span>
+                <div class="lang-list">
+                    <div class="lang-entry">
+                        <span class="lang-name">English</span>
+                        <span class="lang-status">Professional Proficiency</span>
                     </div>
-                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="lang-item">
-                    <div class="lang-header">
-                        <span>Spanish</span>
-                        <span class="lang-level">Fluent</span>
+                    <div class="lang-entry">
+                        <span class="lang-name">Spanish</span>
+                        <span class="lang-status">Professional Proficiency</span>
                     </div>
-                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="lang-item">
-                    <div class="lang-header">
-                        <span>Chinese</span>
-                        <span class="lang-level">Native</span>
+                    <div class="lang-entry">
+                        <span class="lang-name">Chinese</span>
+                        <span class="lang-status">Native Speaker</span>
                     </div>
-                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 100%;"></div></div>
                 </div>
             </section>
         </div>
 
         <div class="lang-es hidden">
-            
             <section class="card">
                 <h2><i class="fas fa-certificate"></i> Certificaciones</h2>
                 <div class="cert-box">
@@ -544,9 +515,9 @@
             </section>
 
             <section class="card">
-                <h2><i class="fas fa-code"></i> Habilidades Técnicas</h2>
+                <h2><i class="fas fa-code"></i> Technical Skills</h2>
                 <div class="skill-category">
-                    <span class="skill-title">Cloud y DevOps (SAA Certificado)</span>
+                    <span class="skill-title">Cloud & DevOps (SAA Certified)</span>
                     <span class="skill-tag highlight">AWS Solutions Architect</span>
                     <span class="skill-tag">EC2 & VPC</span>
                     <span class="skill-tag">S3 & CloudFront</span>
@@ -560,7 +531,7 @@
                     <span class="skill-tag">GitHub Actions</span>
                 </div>
                 <div class="skill-category">
-                    <span class="skill-title">Desarrollo</span>
+                    <span class="skill-title">Development</span>
                     <span class="skill-tag">Python (Boto3, Flask)</span>
                     <span class="skill-tag">Bash Scripting</span>
                     <span class="skill-tag">C/C++</span>
@@ -569,7 +540,7 @@
                     <span class="skill-tag">Git</span>
                 </div>
                 <div class="skill-category">
-                    <span class="skill-title">Redes y Seguridad</span>
+                    <span class="skill-title">Network & Security</span>
                     <span class="skill-tag">Wireshark</span>
                     <span class="skill-tag">OpenVPN</span>
                     <span class="skill-tag">PKI & TLS</span>
@@ -595,30 +566,22 @@
 
             <section class="card">
                 <h2><i class="fas fa-language"></i> Idiomas</h2>
-                <div class="lang-item">
-                    <div class="lang-header">
-                        <span>Inglés</span>
-                        <span class="lang-level">Fluido</span>
+                <div class="lang-list">
+                    <div class="lang-entry">
+                        <span class="lang-name">Inglés</span>
+                        <span class="lang-status">Competencia Profesional</span>
                     </div>
-                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="lang-item">
-                    <div class="lang-header">
-                        <span>Español</span>
-                        <span class="lang-level">Fluido</span>
+                    <div class="lang-entry">
+                        <span class="lang-name">Español</span>
+                        <span class="lang-status">Competencia Profesional</span>
                     </div>
-                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="lang-item">
-                    <div class="lang-header">
-                        <span>Chino</span>
-                        <span class="lang-level">Nativo</span>
+                    <div class="lang-entry">
+                        <span class="lang-name">Chino</span>
+                        <span class="lang-status">Nativo</span>
                     </div>
-                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 100%;"></div></div>
                 </div>
             </section>
         </div>
-
     </div>
 
     <footer>
@@ -626,7 +589,6 @@
     </footer>
 
     <script>
-        // 1. Language Logic
         function switchLang(lang) {
             const enElements = document.querySelectorAll('.lang-en');
             const esElements = document.querySelectorAll('.lang-es');
@@ -646,33 +608,17 @@
             }
         }
 
-        // 2. API Logic
         const apiUrl = "https://ubnjbwuf9e.execute-api.us-east-1.amazonaws.com/count"; 
-
-        // Fetch visitor count from API
         const counterEl = document.getElementById('counter');
         const dotEl = document.querySelector('.status-dot');
         
-        if (apiUrl === "REPLACE_ME_WITH_YOUR_NEW_API_URL") {
-            console.log("Waiting for API URL...");
-            counterEl.innerText = "Deploying...";
-            dotEl.style.backgroundColor = 'orange';
-        } else {
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("HTTP error " + response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    counterEl.innerText = data.count;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    counterEl.innerText = "Offline";
-                    dotEl.style.backgroundColor = '#ff4444';
-                    dotEl.style.animation = 'none';
-                });
-        }
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => { counterEl.innerText = data.count; })
+            .catch(error => {
+                counterEl.innerText = "Offline";
+                dotEl.style.backgroundColor = '#ff4444';
+            });
     </script>
 </body>
 </html>
