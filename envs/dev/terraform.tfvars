@@ -1,0 +1,1 @@
+my_bucket_name = "zihao-resume-dev-2026-v99"

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zihao Zhou | Cloud Engineer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- 1. Global Variables & Reset --- */
+        :root {
+            --primary: #232f3e;       /* AWS Dark Blue */
+            --primary-dark: #1a232f;
+            --accent: #ff9900;        /* AWS Orange */
+            --text-main: #333;
+            --text-light: #555;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 15px 30px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+            /* Language Bar Colors */
+            --bar-bg: #e9ecef;
+            --bar-fill: #232f3e;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- 2. Animations --- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fillBar {
+            from { width: 0; }
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        @keyframes bg-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- 3. Header Section (Hero) --- */
+        header {
+            background: linear-gradient(-45deg, var(--primary), #1e2a38, #2c3e50, #232f3e);
+            background-size: 400% 400%;
+            animation: bg-shift 15s ease infinite;
+            color: white;
+            padding: 80px 20px 100px;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            animation: fadeUp 0.6s ease-out;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            opacity: 0.95;
+            margin-top: 10px;
+            font-size: 1.15rem;
+            animation: fadeUp 0.8s ease-out;
+            font-weight: 300;
+        }
+
+        /* Language Switcher */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            margin-left: 5px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+        }
+
+        .lang-btn:hover, .lang-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Social Links */
+        .social-links {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            animation: fadeUp 1s ease-out;
+        }
+
+        .social-btn {
+            color: white;
+            text-decoration: none;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .social-btn:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* --- 4. Counter Badge --- */
+        .counter-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            animation: fadeUp 1s ease-out;
+        }
+
+        .counter-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #00ff88; /* Bright Green */
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: pulse-green 2s infinite;
+        }
+
+        .counter-text {
+            color: rgba(255, 255, 255, 0.9);
+            margin-right: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .counter-val {
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        /* --- 5. Main Layout --- */
+        .container {
+            max-width: 950px;
+            margin: -60px auto 60px; /* Overlap header */
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeUp 1.2s ease-out;
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Section Titles */
+        h2 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+        
+        h2 i { color: var(--accent); }
+
+        /* --- 6. Content Styling --- */
+        
+        /* Certs */
+        .cert-box {
+            background: linear-gradient(to right, #f8fafc, #ffffff);
+            padding: 20px 25px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .verify-link {
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid #ddd;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .verify-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Skills */
+        .skill-category { margin-bottom: 25px; }
+        .skill-category:last-child { margin-bottom: 0; }
+        
+        .skill-title {
+            display: block; 
+            margin-bottom: 10px; 
+            color: var(--text-light); 
+            font-size: 0.85rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1.2px; 
+            font-weight: 700;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: #f1f5f9;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin: 0 8px 10px 0;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .skill-tag.highlight {
+            background: rgba(255, 153, 0, 0.1);
+            color: #d17d00;
+            border: 1px solid rgba(255, 153, 0, 0.3);
+        }
+
+        .skill-tag:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Projects */
+        .project-item {
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid #eee;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .project-item:hover {
+            border-color: var(--accent);
+            background: #fffdf5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .project-item:hover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 4px;
+            background: var(--accent);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .project-title { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            color: var(--primary); 
+        }
+
+        .project-desc {
+            font-size: 0.95rem;
+            color: #555;
+            margin: 0;
+            text-align: justify;
+        }
+
+        /* --- 7. Language Bars (UPDATED) --- */
+        .lang-item {
+            margin-bottom: 15px;
+        }
+        
+        .lang-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .lang-bar-bg {
+            background-color: var(--bar-bg);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .lang-bar-fill {
+            background-color: var(--bar-fill);
+            height: 100%;
+            border-radius: 4px;
+            width: 0; /* Animated */
+            animation: fillBar 1.5s ease-out forwards;
+        }
+        
+        .lang-level {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            background: #e9ecef;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Utility */
+        .hidden { display: none !important; }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2.2rem; }
+            .cert-box { flex-direction: column; align-items: flex-start; }
+            .lang-switch { top: 15px; right: 15px; }
+            .counter-wrapper { margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="switchLang('en')" id="btn-en">English</button>
+            <button class="lang-btn" onclick="switchLang('es')" id="btn-es">Español</button>
+        </div>
+
+        <h1>Zihao Zhou</h1>
+        
+        <div class="lang-en">
+            <p>Telecommunications Network Engineering Student | Cloud & DevOps Enthusiast</p>
+            <p style="font-size: 0.95rem; opacity: 0.8;"><i class="fas fa-map-marker-alt"></i> Badalona, Barcelona, Catalonia</p>
+        </div>
+
+        <div class="lang-es hidden">
+            <p>Estudiante de Ingeniería de Redes de Telecomunicación | Entusiasta de Cloud y DevOps</p>
+            <p style="font-size: 0.95rem; opacity: 0.8;"><i class="fas fa-map-marker-alt"></i> Badalona, Barcelona, Cataluña</p>
+        </div>
+
+        <div class="counter-wrapper">
+            <div class="counter-badge" title="Live data from DynamoDB">
+                <div class="status-dot"></div>
+                <span class="counter-text lang-en">Total Visits:</span>
+                <span class="counter-text lang-es hidden">Visitas Totales:</span>
+                <span id="counter" class="counter-val">Loading...</span>
+            </div>
+        </div>
+
+        <div class="social-links">
+            <a href="mailto:zizo.xhao@gmail.com" class="social-btn"><i class="fas fa-envelope"></i> Email</a>
+            <a href="https://www.linkedin.com/in/zihao-zhou-a7334628a" target="_blank" class="social-btn"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            <a href="https://github.com/Zizo-Jo" target="_blank" class="social-btn"><i class="fab fa-github"></i> GitHub</a>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="lang-en">
+            
+            <section class="card">
+                <h2><i class="fas fa-certificate"></i> Certifications</h2>
+                <div class="cert-box">
+                    <div>
+                        <h3 style="margin:0; font-size: 1.15rem; color:var(--primary);">AWS Certified Solutions Architect – Associate (SAA)</h3>
+                        <small style="color:#666; display:block; margin-top:4px;">Validates expertise in distributed systems on AWS.</small>
+                    </div>
+                    <a href="https://www.credly.com/badges/ec97558b-dab5-41d9-85c2-4d1158672f18/public_url" target="_blank" class="verify-link">Verify Credential <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-code"></i> Technical Skills</h2>
+                <div class="skill-category">
+                    <span class="skill-title">Cloud & DevOps (SAA Certified)</span>
+                    <span class="skill-tag highlight">AWS Solutions Architect</span>
+                    <span class="skill-tag">EC2 & VPC</span>
+                    <span class="skill-tag">S3 & CloudFront</span>
+                    <span class="skill-tag">Lambda & API Gateway</span>
+                    <span class="skill-tag">DynamoDB</span>
+                    <span class="skill-tag">ECS (Fargate) & ECR</span>
+                    <span class="skill-tag">IAM & Route53</span>
+                    <span class="skill-tag">Terraform (IaC)</span>
+                    <span class="skill-tag">Kubernetes</span>
+                    <span class="skill-tag">Docker</span>
+                    <span class="skill-tag">GitHub Actions</span>
+                </div>
+                <div class="skill-category">
+                    <span class="skill-title">Development</span>
+                    <span class="skill-tag">Python (Boto3, Flask)</span>
+                    <span class="skill-tag">Bash Scripting</span>
+                    <span class="skill-tag">C/C++</span>
+                    <span class="skill-tag">Java</span>
+                    <span class="skill-tag">SQL (MySQL)</span>
+                    <span class="skill-tag">Git</span>
+                </div>
+                <div class="skill-category">
+                    <span class="skill-title">Network & Security</span>
+                    <span class="skill-tag">Wireshark</span>
+                    <span class="skill-tag">OpenVPN</span>
+                    <span class="skill-tag">PKI & TLS</span>
+                    <span class="skill-tag">TCP/IP & DNS</span>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-laptop-code"></i> Key Projects</h2>
+                <div class="project-item">
+                    <div class="project-title">The Cloud Resume Challenge (AWS & Terraform)</div>
+                    <p class="project-desc">Designed a secure serverless architecture on AWS. Directed primary engineering efforts toward backend logic and infrastructure automation using <strong>Terraform</strong> and <strong>Python</strong>. Orchestrated <strong>S3</strong> and <strong>CloudFront</strong> for global content delivery, and implemented a high-concurrency atomic visitor counter using <strong>API Gateway</strong>, <strong>Lambda</strong>, and <strong>DynamoDB</strong>. Prioritized IaC and state management best practices.</p>
+                </div>
+                <div class="project-item">
+                    <div class="project-title">Serverless CI/CD Automation on AWS</div>
+                    <p class="project-desc">Engineered a fully automated deployment pipeline for a containerized Python Flask application using <strong>Docker</strong> and <strong>AWS ECS Fargate</strong>. Implemented <strong>Infrastructure as Code (IaC)</strong> using Terraform to provision VPC, ECR, and IAM roles. Configured <strong>GitHub Actions</strong> to build, tag, and push images upon code commit, achieving zero-downtime rolling updates in the production environment.</p>
+                </div>
+                <div class="project-item">
+                    <div class="project-title">End-to-End Kubernetes Application Management</div>
+                    <p class="project-desc">Managed the complete lifecycle of a Flask REST API on <strong>Kubernetes</strong>. Modified the application to be "Kubernetes-aware" by dynamically displaying pod IP addresses. Authored <strong>YAML manifests</strong> for Deployment and Service resources, deployed to a Minikube cluster, and scaled to multiple replicas. Integrated a stateful MongoDB database within the cluster.</p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-language"></i> Languages</h2>
+                <div class="lang-item">
+                    <div class="lang-header">
+                        <span>English</span>
+                        <span class="lang-level">Fluent</span>
+                    </div>
+                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="lang-item">
+                    <div class="lang-header">
+                        <span>Spanish</span>
+                        <span class="lang-level">Fluent</span>
+                    </div>
+                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="lang-item">
+                    <div class="lang-header">
+                        <span>Chinese</span>
+                        <span class="lang-level">Native</span>
+                    </div>
+                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 100%;"></div></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="lang-es hidden">
+            
+            <section class="card">
+                <h2><i class="fas fa-certificate"></i> Certificaciones</h2>
+                <div class="cert-box">
+                    <div>
+                        <h3 style="margin:0; font-size: 1.15rem; color:var(--primary);">AWS Certified Solutions Architect – Associate (SAA)</h3>
+                        <small style="color:#666; display:block; margin-top:4px;">Valida experiencia en diseño de sistemas distribuidos en AWS.</small>
+                    </div>
+                    <a href="https://www.credly.com/badges/ec97558b-dab5-41d9-85c2-4d1158672f18/public_url" target="_blank" class="verify-link">Verificar <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-code"></i> Habilidades Técnicas</h2>
+                <div class="skill-category">
+                    <span class="skill-title">Cloud y DevOps (SAA Certificado)</span>
+                    <span class="skill-tag highlight">AWS Solutions Architect</span>
+                    <span class="skill-tag">EC2 & VPC</span>
+                    <span class="skill-tag">S3 & CloudFront</span>
+                    <span class="skill-tag">Lambda & API Gateway</span>
+                    <span class="skill-tag">DynamoDB</span>
+                    <span class="skill-tag">ECS (Fargate) & ECR</span>
+                    <span class="skill-tag">IAM & Route53</span>
+                    <span class="skill-tag">Terraform (IaC)</span>
+                    <span class="skill-tag">Kubernetes</span>
+                    <span class="skill-tag">Docker</span>
+                    <span class="skill-tag">GitHub Actions</span>
+                </div>
+                <div class="skill-category">
+                    <span class="skill-title">Desarrollo</span>
+                    <span class="skill-tag">Python (Boto3, Flask)</span>
+                    <span class="skill-tag">Bash Scripting</span>
+                    <span class="skill-tag">C/C++</span>
+                    <span class="skill-tag">Java</span>
+                    <span class="skill-tag">SQL (MySQL)</span>
+                    <span class="skill-tag">Git</span>
+                </div>
+                <div class="skill-category">
+                    <span class="skill-title">Redes y Seguridad</span>
+                    <span class="skill-tag">Wireshark</span>
+                    <span class="skill-tag">OpenVPN</span>
+                    <span class="skill-tag">PKI & TLS</span>
+                    <span class="skill-tag">TCP/IP & DNS</span>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-laptop-code"></i> Proyectos Destacados</h2>
+                <div class="project-item">
+                    <div class="project-title">The Cloud Resume Challenge (AWS & Terraform)</div>
+                    <p class="project-desc">Diseñé una arquitectura serverless segura en AWS. Dirigí los esfuerzos principales hacia la lógica backend y la automatización con <strong>Terraform</strong> y <strong>Python</strong>. Orquesté <strong>S3</strong> y <strong>CloudFront</strong> para entrega global, e implementé un contador de visitas atómico de alta concurrencia usando <strong>API Gateway</strong>, <strong>Lambda</strong> y <strong>DynamoDB</strong>. Prioricé IaC y gestión de estado.</p>
+                </div>
+                <div class="project-item">
+                    <div class="project-title">Automatización CI/CD Serverless en AWS</div>
+                    <p class="project-desc">Diseñé un pipeline de despliegue totalmente automatizado para una aplicación Python Flask contenerizada usando <strong>Docker</strong> y <strong>AWS ECS Fargate</strong>. Implementé Infraestructura como Código (IaC) con Terraform para aprovisionar VPC, ECR y roles IAM. Configuré <strong>GitHub Actions</strong> para construir y desplegar imágenes automáticamente, logrando actualizaciones sin tiempo de inactividad (Zero-downtime).</p>
+                </div>
+                <div class="project-item">
+                    <div class="project-title">Gestión de Aplicaciones Kubernetes End-to-End</div>
+                    <p class="project-desc">Gestioné el ciclo de vida completo de una API REST Flask en <strong>Kubernetes</strong>. Modifiqué la aplicación para ser "consciente de Kubernetes" mostrando dinámicamente las IPs de los pods. Creé <strong>manifiestos YAML</strong> para Deployment y Service, desplegué en Minikube y escalé a múltiples réplicas. Integré una base de datos MongoDB stateful en el clúster.</p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><i class="fas fa-language"></i> Idiomas</h2>
+                <div class="lang-item">
+                    <div class="lang-header">
+                        <span>Inglés</span>
+                        <span class="lang-level">Fluido</span>
+                    </div>
+                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="lang-item">
+                    <div class="lang-header">
+                        <span>Español</span>
+                        <span class="lang-level">Fluido</span>
+                    </div>
+                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="lang-item">
+                    <div class="lang-header">
+                        <span>Chino</span>
+                        <span class="lang-level">Nativo</span>
+                    </div>
+                    <div class="lang-bar-bg"><div class="lang-bar-fill" style="width: 100%;"></div></div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2026 Zihao Zhou. Infrastructure automated with Terraform on AWS.</p>
+    </footer>
+
+    <script>
+        // 1. Language Logic
+        function switchLang(lang) {
+            const enElements = document.querySelectorAll('.lang-en');
+            const esElements = document.querySelectorAll('.lang-es');
+            const btnEn = document.getElementById('btn-en');
+            const btnEs = document.getElementById('btn-es');
+
+            if (lang === 'en') {
+                enElements.forEach(el => el.classList.remove('hidden'));
+                esElements.forEach(el => el.classList.add('hidden'));
+                btnEn.classList.add('active');
+                btnEs.classList.remove('active');
+            } else {
+                enElements.forEach(el => el.classList.add('hidden'));
+                esElements.forEach(el => el.classList.remove('hidden'));
+                btnEn.classList.remove('active');
+                btnEs.classList.add('active');
+            }
+        }
+
+        // 2. API Logic
+        // ⚠️⚠️⚠️ 重点：Terraform 部署完后，一定要把 API URL 填在这里！⚠️⚠️⚠️
+        const apiUrl = "REPLACE_ME_WITH_YOUR_NEW_API_URL"; 
+
+        // 模拟加载效果
+        const counterEl = document.getElementById('counter');
+        const dotEl = document.querySelector('.status-dot');
+        
+        if (apiUrl === "REPLACE_ME_WITH_YOUR_NEW_API_URL") {
+            console.log("Waiting for API URL...");
+            counterEl.innerText = "Deploying...";
+            dotEl.style.backgroundColor = 'orange';
+        } else {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("HTTP error " + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    counterEl.innerText = data.count;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    counterEl.innerText = "Offline";
+                    dotEl.style.backgroundColor = '#ff4444';
+                    dotEl.style.animation = 'none';
+                });
+        }
+    </script>
+</body>
+</html>
