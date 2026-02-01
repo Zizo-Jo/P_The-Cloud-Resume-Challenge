@@ -647,10 +647,9 @@
         }
 
         // 2. API Logic
-        // ⚠️⚠️⚠️ 重点：Terraform 部署完后，一定要把 API URL 填在这里！⚠️⚠️⚠️
-        const apiUrl = "REPLACE_ME_WITH_YOUR_NEW_API_URL"; 
+        const apiUrl = "https://ubnjbwuf9e.execute-api.us-east-1.amazonaws.com//count"; 
 
-        // 模拟加载效果
+        // Fetch visitor count from API
         const counterEl = document.getElementById('counter');
         const dotEl = document.querySelector('.status-dot');
         
