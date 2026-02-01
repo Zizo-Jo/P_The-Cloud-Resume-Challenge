@@ -277,7 +277,7 @@
 
         .skill-tag.highlight {
             background: rgba(255, 153, 0, 0.1);
-            color: #d17d00;
+            color: #ff9900;
             border: 1px solid rgba(255, 153, 0, 0.3);
         }
 
@@ -288,27 +288,30 @@
         }
 
         .project-item {
-            margin-bottom: 30px;
-            padding: 25px;
+            margin-bottom: 25px;
+            padding: 30px;
             border-radius: 10px;
             background: #fff;
-            border: 1px solid #eee;
-            transition: 0.3s;
+            border: 1px solid #eef2f6;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
+            overflow: hidden;
         }
 
         .project-item:hover {
             border-color: var(--accent);
             background: #fffdf5;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+
+            transform: translateX(8px); 
+            box-shadow: -5px 5px 15px rgba(0,0,0,0.05);
         }
 
         .project-item:hover::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 10%;
-            height: 80%;
+            top: 15%;
+            height: 70%;
             width: 4px;
             background: var(--accent);
             border-radius: 0 4px 4px 0;
@@ -328,37 +331,48 @@
             text-align: justify;
         }
 
-        .lang-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
 
         .lang-entry {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 20px;
-            background: #f8fafc;
+            padding: 15px 25px; 
+            background: #ffffff;
             border-radius: 8px;
-            border: 1px solid #edf2f7;
-            transition: 0.2s;
+            border: 1px solid #eee;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .lang-entry:hover {
-            background: #fff;
             border-color: var(--accent);
+            background: #fffdf5; 
+            transform: translateX(5px); 
+        }
+
+        .lang-entry:hover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%; 
+            height: 70%;
+            width: 4px;
+            background: var(--accent);
+            border-radius: 0 4px 4px 0;
         }
 
         .lang-name {
             font-weight: 700;
             color: var(--primary);
+            font-size: 1rem;
         }
 
         .lang-status {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #ff9900;
+            color: #d17d00;
             background: rgba(255, 153, 0, 0.1);
             padding: 4px 12px;
             border-radius: 20px;
