@@ -1,65 +1,63 @@
-# AWS Cloud Resume Challenge - Infrastructure as Code
+# ☁️ The Cloud Resume Challenge (Terraform & AWS Edition)
 
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
-![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+[![Terraform](https://img.shields.io/badge/Terraform-v1.0+-purple?logo=terraform)](https://www.terraform.io/)
+[![AWS](https://img.shields.io/badge/AWS-Serverless-orange?logo=amazon-aws)](https://aws.amazon.com/)
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/Status-Live-green)](https://zihao-cv.site)
 
-## 📖 Project Overview
+> **Live Demo:** [https://zihao-cv.site](https://zihao-cv.site)
 
-This project is a serverless resume website deployed on AWS, fully provisioned using **Terraform**. It demonstrates a full-stack cloud architecture, integrating a static frontend with a serverless backend API and database.
+## 📖 Introduction
 
-**Live Demo:** [Click here to view my Cloud Resume](https://d3qj25z2nahdvu.cloudfront.net) *(Replace with your actual CloudFront URL)*
+This project is my implementation of **The Cloud Resume Challenge**. It is a serverless resume website deployed on **AWS**, fully provisioned using **Infrastructure as Code (Terraform)**.
+
+The site features a static HTML frontend with a dynamic **visitor counter**, powered by a Python-based serverless backend. The architecture prioritizes **security**, **cost-optimization**, and **automation**.
 
 ## 🏗️ Architecture
 
-The infrastructure is built with a **Serverless First** mindset and managed 100% via Infrastructure as Code (IaC).
+The infrastructure leverages a multi-cloud approach for optimal performance and security:
 
-* **Frontend:**
-    * **Amazon S3:** Hosts the static HTML/CSS/JS files.
-    * **Amazon CloudFront:** Provides global Content Delivery Network (CDN) for low latency and HTTPS security.
-* **Backend:**
-    * **Amazon API Gateway (HTTP API):** Acts as the entry point for the frontend to communicate with the backend.
-    * **AWS Lambda (Python 3.9):** Executes serverless compute logic to handle visitor counter updates.
-    * **Amazon DynamoDB:** NoSQL database to store and persist the atomic visitor count.
-* **Infrastructure:**
-    * **Terraform:** Orchestrates the entire lifecycle of AWS resources (IAM roles, Policies, Buckets, Functions, APIs) and automates frontend code deployment.
+1.  **Frontend**: Hosted on **AWS S3** (private bucket) and distributed globally via **AWS CloudFront** (CDN).
+2.  **Backend**: **AWS API Gateway** (HTTP API) triggers a **Lambda** function running **Python 3.12**.
+3.  **Database**: **AWS DynamoDB** stores visitor counts using atomic updates to handle concurrency.
+4.  **DNS & Security**: **Cloudflare** manages DNS, providing DDoS protection and strict SSL/TLS encryption.
+5.  **IaC**: **Terraform** manages the entire lifecycle of AWS resources using modular design.
 
 ## 🛠️ Tech Stack
 
-* **Cloud Provider:** AWS (us-east-1)
-* **IaC:** HashiCorp Terraform
-* **Backend Runtime:** Python 3.9 (Boto3)
-* **Database:** DynamoDB (On-Demand Capacity)
-* **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
-* **Version Control:** Git & GitHub
+| Category | Technology | Usage |
+| :--- | :--- | :--- |
+| **IaC** | **Terraform** | Provisioning (Modules & Environments) |
+| **Compute** | **AWS Lambda** | Python 3.12 backend logic |
+| **API** | **API Gateway** | HTTP API (v2) with CORS configuration |
+| **Database** | **DynamoDB** | NoSQL storage (On-Demand billing) |
+| **Storage** | **AWS S3** | Static website hosting (HTML/CSS/JS) |
+| **CDN** | **CloudFront** | Global content delivery & HTTPS termination |
+| **Security** | **AWS ACM** | SSL/TLS Certificate management |
+| **DNS** | **Cloudflare** | DNS resolution & Edge caching |
+| **Language** | **Python** | Backend logic (Boto3) |
 
-## 🚀 Deployment
+## 📂 Project Structure
 
-Prerequisites: AWS CLI configured and Terraform installed.
+The project follows a modular architecture, separating environments (`dev`, `prod`) from reusable logic (`modules`).
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/Zizo-Jo/The-Cloud-Resume-Challenge.git](https://github.com/Zizo-Jo/The-Cloud-Resume-Challenge.git)
-    cd The-Cloud-Resume-Challenge
-    ```
-
-2.  **Initialize Terraform:**
-    ```bash
-    cd terraform
-    terraform init
-    ```
-
-3.  **Deploy Infrastructure:**
-    ```bash
-    terraform apply
-    # Type 'yes' to confirm
-    ```
-
-4.  **Automatic Upload:**
-    Terraform is configured to automatically detect changes in `index.html` and upload the new version to S3 upon applying.
-
-## 💡 Key Learnings
-
-* **Infrastructure as Code:** Migrated from manual console management to full Terraform automation, ensuring reproducibility and eliminating configuration drift.
-* **Security:** Implemented **Least Privilege Principle** for Lambda IAM roles and secured S3 buckets using CloudFront OAI/OAC concepts (via Bucket Policy).
-* **CORS & API:** Solved Cross-Origin Resource Sharing challenges between the static frontend and the API Gateway.
+```bash
+.
+├── envs/                   # Environment-specific configurations
+│   ├── dev/                # Development environment (Entry point)
+│   │   ├── main.tf         # Instantiates modules for Dev
+│   │   ├── outputs.tf
+│   │   ├── variables.tf
+│   │   └── terraform.tfvars
+│   └── prod/               # Production environment
+│       └── ...
+├── modules/                # Reusable Terraform Modules
+│   ├── backend/            # Lambda, DynamoDB, API Gateway resources
+│   └── frontend/           # S3, CloudFront, ACM resources
+├── src/                    # Source Code
+│   ├── lambda/
+│   │   └── func.py         # Python backend logic
+│   └── website/
+│       └── index.html      # Frontend HTML
+├── .gitignore              # Git ignore rules (Crucial for security)
+└── README.md               # Documentation
