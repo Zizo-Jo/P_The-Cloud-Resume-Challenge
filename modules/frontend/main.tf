@@ -39,10 +39,25 @@ resource "aws_s3_object" "html" {
   etag         = filemd5(var.html_source)
 }
 
+# ACM Certificate Resource
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "zihao-cv.site"
+  validation_method = "DNS"
+
+  subject_alternative_names = ["www.zihao-cv.site"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# CloudFront Distribution Resource
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
   default_root_object = "index.html"
   
+  aliases = ["zihao-cv.site", "www.zihao-cv.site"]
+
   origin {
     domain_name = aws_s3_bucket_website_configuration.web.website_endpoint
     origin_id   = "S3-Origin"
@@ -63,7 +78,7 @@ resource "aws_cloudfront_distribution" "cdn" {
       query_string = false
       cookies { forward = "none" }
     }
-    # 强制不缓存，方便你调试 (上线后可以改大)
+    
     min_ttl     = 0
     default_ttl = 0
     max_ttl     = 0
@@ -74,6 +89,23 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate.cert.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
+}
+
+# Outputs for DNS Validation and CloudFront URL
+output "acm_certificate_cname" {
+  value = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+}
+
+output "cloudfront_domain_name" {
+  value = aws_cloudfront_distribution.cdn.domain_name
 }
