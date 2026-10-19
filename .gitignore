@@ -12,3 +12,11 @@ Thumbs.db
 
 # --- Artifacts (Build files) ---
 *.zip
+
+# --- Claude Code (local only) ---
+.claude/worktrees/
+.claude/settings.local.json
+
+# --- Saved Terraform plans (can contain sensitive values) ---
+*.tfplan
+tfplan

@@ -1,6 +1,9 @@
 resource "aws_s3_bucket" "b" {
-  bucket        = var.bucket_name
-  force_destroy = true
+  bucket = var.bucket_name
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "pub" {
