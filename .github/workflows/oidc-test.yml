@@ -1,0 +1,31 @@
+# TEMPORARY: proves GitHub -> AWS OIDC works. Deleted once the real workflows exist.
+name: oidc-test
+
+on:
+  pull_request:
+
+# Nothing is granted by default; the job asks for exactly what it needs.
+permissions: {}
+
+jobs:
+  whoami:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # allow requesting an OIDC token
+      contents: read
+    steps:
+      - name: Show the OIDC token claims (never the token itself)
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null \
+            | jq '{iss, aud, sub, repository, repository_id, repository_owner_id, event_name, ref}'
+
+      - name: Assume the plan role
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::030342421998:role/github-actions-plan
+          aws-region: us-east-1
+
+      - name: Who am I in AWS?
+        run: aws sts get-caller-identity
