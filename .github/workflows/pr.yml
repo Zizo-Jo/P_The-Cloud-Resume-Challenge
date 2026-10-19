@@ -94,3 +94,85 @@ jobs:
           cache-dependency-path: tests/requirements.txt
       - run: pip install -r tests/requirements.txt
       - run: pytest -v
+
+  terraform-plan:
+    name: terraform plan (comment on PR)
+    runs-on: ubuntu-latest
+    # PRs from forks get no OIDC token and no write token, so only run for this repo's own branches.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      id-token: write # request the OIDC token to assume the read-only role
+      contents: read
+      pull-requests: write # post the plan as a comment
+    env:
+      TF_IN_AUTOMATION: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.6
+          terraform_wrapper: false # keep real exit codes and plain output
+
+      # Read-only role: a pull request can look at AWS but never change it.
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::030342421998:role/github-actions-plan
+          aws-region: us-east-1
+
+      - name: Terraform plan
+        id: plan
+        working-directory: infra/envs/prod
+        run: |
+          terraform init -input=false
+          set +e
+          # -detailed-exitcode: 0 = no changes, 2 = changes, 1 = error
+          terraform plan -input=false -lock=false -no-color -detailed-exitcode > "$GITHUB_WORKSPACE/plan.txt" 2>&1
+          echo "exitcode=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Post plan as PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EXITCODE: ${{ steps.plan.outputs.exitcode }}
+        run: |
+          MARKER="<!-- terraform-plan-comment -->"
+          case "$EXITCODE" in
+            0) STATUS="✅ **No changes.** Infrastructure matches the code." ;;
+            2) STATUS="⚠️ **Changes detected.** Review the plan before merging." ;;
+            *) STATUS="❌ **Plan failed.**" ;;
+          esac
+          {
+            echo "$MARKER"
+            echo "### Terraform plan: \`infra/envs/prod\`"
+            echo
+            echo "$STATUS"
+            echo
+            echo "<details><summary>Plan output</summary>"
+            echo
+            echo '```'
+            head -c 60000 plan.txt # PR comments are limited to ~65k characters
+            echo
+            echo '```'
+            echo "</details>"
+            echo
+            echo "_Commit \`${HEAD_SHA::7}\` · read-only role · \`-lock=false\`_"
+          } > comment.md
+
+          # Update our previous comment if there is one, otherwise create it.
+          ID=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | contains(\"$MARKER\"))) | .id" | head -1)
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$ID" -F body=@comment.md > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -F body=@comment.md > /dev/null
+          fi
+
+      # A plan with changes is information, not a failure. Only a real error fails the job.
+      - name: Fail if the plan errored
+        if: steps.plan.outputs.exitcode == '1'
+        run: exit 1
