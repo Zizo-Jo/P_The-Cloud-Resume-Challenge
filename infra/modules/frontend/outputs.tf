@@ -4,6 +4,10 @@ output "cloudfront_url" {
   value = aws_cloudfront_distribution.cdn.domain_name
 }
 
+output "cloudfront_distribution_id" {
+  value = aws_cloudfront_distribution.cdn.id
+}
+
 output "acm_certificate_cname" {
   value = {
     for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {

@@ -1,3 +1,4 @@
 output "api_endpoint" {
-  value = "${aws_apigatewayv2_stage.stage.invoke_url}/count"
+  # invoke_url already ends with "/" for the $default stage.
+  value = "${trimsuffix(aws_apigatewayv2_stage.stage.invoke_url, "/")}/count"
 }
