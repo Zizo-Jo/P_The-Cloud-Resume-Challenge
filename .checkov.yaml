@@ -1,0 +1,33 @@
+# Checkov (IaC security scanner) baseline. CI fails on any finding NOT listed here,
+# so new risks cannot slip in. Every entry has a reason.
+framework:
+  - terraform
+compact: true
+quiet: true
+
+skip-check:
+  # --- Accepted: cost or complexity out of proportion for a personal site ---
+  - CKV_AWS_119 # DynamoDB KMS customer-managed key: ~$1/month/key, counter is not sensitive
+  - CKV_AWS_145 # S3 KMS customer-managed key: same; the bucket holds one public HTML file
+  - CKV_AWS_173 # Lambda env var encryption with KMS: the only variable is a table name
+  - CKV_AWS_117 # Lambda inside a VPC: needs a NAT gateway (~$30/month)
+  - CKV_AWS_116 # Lambda dead-letter queue: invoked synchronously by API Gateway, N/A
+  - CKV_AWS_272 # Lambda code signing: code only arrives through the reviewed pipeline
+  - CKV_AWS_309 # API route authorization: the visitor counter is intentionally public
+  - CKV_AWS_68 # CloudFront WAF: several $/month; Cloudflare already filters traffic in front
+  - CKV2_AWS_47 # WAF Log4j rule: depends on CKV_AWS_68
+  - CKV_AWS_86 # CloudFront access logging: needs a separate logging bucket
+  - CKV_AWS_18 # S3 access logging: same
+  - CKV_AWS_310 # CloudFront origin failover: single origin by design
+  - CKV_AWS_374 # CloudFront geo restriction: visitors from everywhere are welcome
+  - CKV_AWS_144 # S3 cross-region replication: overkill for one HTML file
+  - CKV2_AWS_62 # S3 event notifications: nothing consumes them
+
+  # --- TODO Phase 2: real improvements, remove the line when fixed ---
+  - CKV_AWS_76 # API Gateway access logging
+  - CKV2_AWS_32 # CloudFront response headers policy (HSTS etc.)
+  - CKV_AWS_115 # Lambda reserved concurrency (caps abuse and cost)
+  - CKV_AWS_21 # S3 versioning on the website bucket
+  - CKV2_AWS_61 # S3 lifecycle rule (expire old versions)
+  - CKV_AWS_28 # DynamoDB point-in-time recovery
+  - CKV_AWS_50 # Lambda X-Ray tracing
