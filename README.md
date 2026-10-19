@@ -38,25 +38,48 @@ The infrastructure leverages a multi-cloud approach for optimal performance and 
 
 ## 📂 Project Structure
 
-The project follows a modular architecture, separating environments (`dev`, `prod`) from reusable logic (`modules`).
+Reusable logic lives in `infra/modules`; the single production environment in `infra/envs/prod` wires the modules together. `bootstrap/` is applied once by hand to create the bucket that stores Terraform state.
 
 ```bash
 .
-├── envs/                   # Environment-specific configurations
-│   ├── dev/                # Development environment (Entry point)
-│   │   ├── main.tf         # Instantiates modules for Dev
-│   │   ├── outputs.tf
-│   │   ├── variables.tf
-│   │   └── terraform.tfvars
-│   └── prod/               # Production environment
-│       └── ...
-├── modules/                # Reusable Terraform Modules
-│   ├── backend/            # Lambda, DynamoDB, API Gateway resources
-│   └── frontend/           # S3, CloudFront, ACM resources
-├── src/                    # Source Code
+├── bootstrap/              # One-time setup: S3 bucket for remote Terraform state
+├── infra/
+│   ├── envs/
+│   │   └── prod/           # The live environment (entry point)
+│   │       ├── main.tf     # S3 backend + module wiring
+│   │       ├── variables.tf
+│   │       └── terraform.tfvars
+│   └── modules/            # Reusable Terraform modules
+│       ├── backend/        # Lambda, DynamoDB, API Gateway
+│       └── frontend/       # S3, CloudFront, ACM
+├── src/
 │   ├── lambda/
 │   │   └── func.py         # Python backend logic
 │   └── website/
 │       └── index.html      # Frontend HTML
-├── .gitignore              # Git ignore rules (Crucial for security)
-└── README.md               # Documentation
+├── cloudresume.drawio      # Architecture diagram source
+└── README.md
+```
+
+## 🔐 State & Safety
+
+- **Remote state:** Terraform state lives in a private, versioned, encrypted S3 bucket with S3-native locking (`use_lockfile`), so two runs can't corrupt it.
+- **Guards:** `prevent_destroy` on the website bucket, the visitor-count table and the state bucket.
+
+## 🚀 Deploy (manual, for now)
+
+```bash
+aws sso login --sso-session <session>
+export AWS_PROFILE=<profile>
+
+# first time only: create the state bucket
+cd bootstrap && terraform init && terraform apply
+
+# the site itself
+cd ../infra/envs/prod
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+```
+
+CI/CD with GitHub Actions is the next step.
