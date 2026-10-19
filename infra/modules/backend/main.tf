@@ -36,9 +36,13 @@ resource "aws_iam_role_policy" "policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
+      # The function only ever runs update_item on the item with id "count".
       Effect   = "Allow",
-      Action   = ["dynamodb:UpdateItem", "dynamodb:GetItem", "dynamodb:PutItem"],
-      Resource = aws_dynamodb_table.t.arn
+      Action   = ["dynamodb:UpdateItem"],
+      Resource = aws_dynamodb_table.t.arn,
+      Condition = {
+        "ForAllValues:StringEquals" = { "dynamodb:LeadingKeys" = ["count"] }
+      }
     }]
   })
 }
