@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "b" {
 }
 
 resource "aws_s3_bucket_public_access_block" "pub" {
-  bucket = aws_s3_bucket.b.id
+  bucket                  = aws_s3_bucket.b.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -23,7 +23,7 @@ resource "aws_cloudfront_origin_access_control" "oac" {
 }
 
 resource "aws_s3_bucket_policy" "pol" {
-  bucket = aws_s3_bucket.b.id
+  bucket     = aws_s3_bucket.b.id
   depends_on = [aws_s3_bucket_public_access_block.pub]
   policy = jsonencode({
     Version = "2012-10-17"
@@ -37,7 +37,7 @@ resource "aws_s3_bucket_policy" "pol" {
       Resource = "${aws_s3_bucket.b.arn}/*"
       Condition = {
         StringEquals = {
-          "AWS:SourceArn" = aws_cloudfront_distribution.cdn.arn 
+          "AWS:SourceArn" = aws_cloudfront_distribution.cdn.arn
         }
       }
     }]
@@ -68,25 +68,25 @@ resource "aws_acm_certificate" "cert" {
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
   default_root_object = "index.html"
-  
+
   aliases = ["zihao-cv.site", "www.zihao-cv.site"]
 
   origin {
-    domain_name = aws_s3_bucket.b.bucket_regional_domain_name
-    origin_id   = "S3-Origin"
+    domain_name              = aws_s3_bucket.b.bucket_regional_domain_name
+    origin_id                = "S3-Origin"
     origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
   }
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-Origin"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "S3-Origin"
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       query_string = false
       cookies { forward = "none" }
     }
-    
+
     min_ttl     = 0
     default_ttl = 0
     max_ttl     = 0
