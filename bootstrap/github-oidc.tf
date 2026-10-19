@@ -83,6 +83,87 @@ resource "aws_iam_role" "github_apply" {
   max_session_duration = 3600
 }
 
+# --- Plan role permissions: read-only ---------------------------------------
+# Terraform plan "refreshes" every resource (reads its current settings), so the
+# role needs read access to exactly the things infra/envs/prod manages.
+# Names are hardcoded because bootstrap has its own state and cannot reference
+# resources from the prod state.
+
+locals {
+  account_id     = data.aws_caller_identity.current.account_id
+  website_bucket = "zihao-resume-dev-2026-v99"
+  table_name     = "visitors-dev"
+  function_name  = "counter-dev"
+  lambda_role    = "iam_for_lambda_dev"
+}
+
+data "aws_iam_policy_document" "plan_permissions" {
+  # Read the prod state file. The PR workflow runs plan with -lock=false, so
+  # no write access to the state bucket is needed.
+  statement {
+    sid       = "ReadProdState"
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.state.arn}/prod/terraform.tfstate"]
+  }
+
+  statement {
+    sid       = "ListStateBucket"
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.state.arn]
+  }
+
+  statement {
+    sid     = "ReadWebsiteBucket"
+    actions = ["s3:Get*", "s3:List*"]
+    resources = [
+      "arn:aws:s3:::${local.website_bucket}",
+      "arn:aws:s3:::${local.website_bucket}/*",
+    ]
+  }
+
+  statement {
+    sid       = "ReadCloudFront"
+    actions   = ["cloudfront:Get*", "cloudfront:List*"]
+    resources = ["*"] # distribution/OAC IDs are generated, so cannot be named here
+  }
+
+  statement {
+    sid       = "ReadCertificate"
+    actions   = ["acm:Describe*", "acm:Get*", "acm:List*"]
+    resources = ["arn:aws:acm:us-east-1:${local.account_id}:certificate/*"]
+  }
+
+  statement {
+    sid       = "ReadLambda"
+    actions   = ["lambda:Get*", "lambda:List*"]
+    resources = ["arn:aws:lambda:us-east-1:${local.account_id}:function:${local.function_name}"]
+  }
+
+  statement {
+    sid       = "ReadApiGateway"
+    actions   = ["apigateway:GET"]
+    resources = ["arn:aws:apigateway:us-east-1::/*"]
+  }
+
+  statement {
+    sid       = "ReadDynamoDB"
+    actions   = ["dynamodb:Describe*", "dynamodb:List*"]
+    resources = ["arn:aws:dynamodb:us-east-1:${local.account_id}:table/${local.table_name}"]
+  }
+
+  statement {
+    sid       = "ReadLambdaRole"
+    actions   = ["iam:Get*", "iam:List*"]
+    resources = ["arn:aws:iam::${local.account_id}:role/${local.lambda_role}"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_plan" {
+  name   = "plan-read-only"
+  role   = aws_iam_role.github_plan.id
+  policy = data.aws_iam_policy_document.plan_permissions.json
+}
+
 output "github_plan_role_arn" {
   value = aws_iam_role.github_plan.arn
 }
