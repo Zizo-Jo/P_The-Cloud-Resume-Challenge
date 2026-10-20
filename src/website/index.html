@@ -11,13 +11,15 @@
       --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f2f5; --text: #0f172a; --muted: #5b6475;
       --line: #e4e7ec; --accent: #ff9900; --accent-ink: #b45309; --link: #2563eb;
       --ok: #16a34a; --warn: #d97706; --bad: #dc2626;
+      --term-bg: #0d1117; --term-line: #21262d; --term-text: #c9d1d9; --term-muted: #8b949e; --term-green: #3fb950; --term-blue: #79c0ff; --term-amber: #e3b341;
       --radius: 14px; --shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
+      --shadow-lift: 0 2px 4px rgba(15, 23, 42, .06), 0 16px 36px rgba(15, 23, 42, .12);
     }
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #0b0d12; --surface: #12151c; --surface-2: #181c25; --text: #e6e8ee; --muted: #9aa3b2;
         --line: #232836; --accent: #ffb547; --accent-ink: #ffb547; --link: #7aa7ff;
-        --ok: #3fb950; --warn: #e3a33b; --bad: #f85149; --shadow: none;
+        --ok: #3fb950; --warn: #e3a33b; --bad: #f85149; --shadow: none; --shadow-lift: 0 0 0 1px #2f3646;
       }
     }
     * { box-sizing: border-box; }
@@ -25,7 +27,8 @@
     body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     a { color: var(--link); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+    code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 
     /* Navigation */
     nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
@@ -36,36 +39,57 @@
     .nav-links a { color: var(--muted); font-size: .92rem; }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
     .nav-actions { display: flex; align-items: center; gap: 10px; }
-    .pill { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: .88rem; font-weight: 500; cursor: pointer; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: .88rem; font-weight: 500; }
     .pill:hover { text-decoration: none; border-color: var(--muted); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-    .dot.ok { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
-    .dot.warn { background: var(--warn); box-shadow: 0 0 0 3px color-mix(in srgb, var(--warn) 25%, transparent); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+    .dot.ok { background: var(--ok); animation: pulse 2.4s infinite; --pulse: var(--ok); }
+    .dot.warn { background: var(--warn); animation: pulse 2.4s infinite; --pulse: var(--warn); }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse) 55%, transparent); } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
     .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
     .lang button { border: 0; background: none; color: var(--muted); font: inherit; font-size: .82rem; font-weight: 600; padding: 7px 11px; cursor: pointer; }
     .lang button.active { background: var(--text); color: var(--bg); }
 
     /* Hero */
-    .hero { padding: 72px 0 56px; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 40px 40px; background-position: -1px -1px; border-bottom: 1px solid var(--line); }
-    .hero .wrap { background: radial-gradient(ellipse at 30% 40%, var(--bg) 40%, transparent 75%); }
+    .hero { padding: 64px 0 48px; border-bottom: 1px solid var(--line); background:
+      radial-gradient(ellipse at 15% 20%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%), var(--bg); }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
     .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); margin-bottom: 14px; }
-    h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 10px; }
-    .role { font-size: clamp(1.15rem, 2.4vw, 1.4rem); font-weight: 600; color: var(--accent-ink); margin: 0 0 16px; }
-    .lead { max-width: 640px; color: var(--muted); font-size: 1.05rem; margin: 0 0 28px; }
-    .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-weight: 600; font-size: .93rem; }
-    .btn:hover { text-decoration: none; border-color: var(--muted); }
+    h1 { font-size: clamp(2.4rem, 5.5vw, 3.5rem); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 10px; }
+    .role { font-size: clamp(1.1rem, 2.2vw, 1.35rem); font-weight: 600; color: var(--accent-ink); margin: 0 0 16px; }
+    .lead { color: var(--muted); font-size: 1.04rem; margin: 0 0 26px; max-width: 520px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; font-size: .93rem; cursor: pointer; transition: transform .15s, border-color .15s; }
+    .btn:hover { text-decoration: none; border-color: var(--muted); transform: translateY(-1px); }
     .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; max-width: 760px; }
-    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
-    .stat b { display: block; font-size: 1.25rem; letter-spacing: -.01em; }
+
+    /* Live terminal */
+    .term { background: var(--term-bg); border: 1px solid var(--term-line); border-radius: 12px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); overflow: hidden; }
+    .term-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--term-line); }
+    .term-bar i { width: 11px; height: 11px; border-radius: 50%; background: #30363d; }
+    .term-bar span { margin-left: 8px; color: var(--term-muted); font-size: .78rem; }
+    .term-live { margin-left: auto !important; display: inline-flex; align-items: center; gap: 6px; color: var(--term-green) !important; }
+    .term-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--term-green); animation: pulse 2s infinite; --pulse: var(--term-green); }
+    .term-body { padding: 16px 18px 18px; min-height: 270px; color: var(--term-text); font: 13.5px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+    .term-body .p { color: var(--term-green); }
+    .term-body .out { color: var(--term-text); }
+    .term-body .c { color: var(--term-muted); }
+    .term-body .k { color: var(--term-blue); }
+    .term-body .w { color: var(--term-amber); }
+    .cursor { display: inline-block; width: 8px; height: 1.05em; vertical-align: text-bottom; background: var(--term-text); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 36px; }
+    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+    .stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+    .stat b { display: block; font-size: 1.3rem; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
     .stat span { color: var(--muted); font-size: .85rem; }
 
     /* Sections */
-    section { padding: 56px 0 8px; }
-    h2 { font-size: 1.5rem; letter-spacing: -.02em; margin: 0 0 6px; }
-    .section-sub { color: var(--muted); margin: 0 0 24px; }
-    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    section { padding: 64px 0 8px; }
+    h2 { font-size: 1.55rem; letter-spacing: -.02em; margin: 0 0 6px; }
+    .section-sub { color: var(--muted); margin: 0 0 24px; max-width: 680px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s, border-color .2s; }
+    .card.lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
     .card + .card { margin-top: 16px; }
     .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-bottom: 10px; }
     .card h3 { font-size: 1.12rem; margin: 0; }
@@ -75,33 +99,82 @@
     .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
     .tag { font-size: .78rem; font-weight: 600; padding: 4px 9px; border-radius: 6px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
     .links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; font-size: .92rem; font-weight: 600; }
-
-    .featured { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
-    .badge { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-ink); margin-bottom: 6px; }
-    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 0 4px; font-size: .82rem; }
-    .flow span { padding: 5px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); }
-    .flow i { color: var(--muted); font-size: .7rem; }
     .grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
     .grid-2 .card + .card { margin-top: 0; }
+
+    /* Interactive architecture */
+    .arch { padding: 28px 24px 22px; }
+    .lane + .lane { margin-top: 26px; }
+    .lane-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; display: flex; justify-content: space-between; gap: 12px; }
+    .lane-label .mono { text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--ok); }
+    .track { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .track::before { content: ""; position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 14px); z-index: 0; }
+    .node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; transition: border-color .2s, transform .2s, box-shadow .2s; }
+    .node i, .node .lambda { font-size: 1.25rem; color: var(--muted); transition: color .2s; font-style: normal; }
+    .node .lambda { height: 1.25rem; line-height: 1.25rem; font-weight: 700; }
+    .lane-label .mono.bad { color: var(--warn); }
+    .node:hover, .node.active { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+    .node:hover i, .node.active i, .node:hover .lambda, .node.active .lambda { color: var(--accent-ink); }
+    .node.hit { border-color: var(--ok); }
+    .node.hit i, .node.hit .lambda { color: var(--ok); }
+    .packet { position: absolute; top: 50%; left: 6%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent), 0 0 16px var(--accent); z-index: 2; opacity: 0; pointer-events: none; }
+    .packet.go { animation: travel 1.1s cubic-bezier(.5, 0, .5, 1) forwards; }
+    @keyframes travel { 0% { left: 6%; opacity: 1; } 92% { opacity: 1; } 100% { left: 94%; opacity: 0; } }
+    .arch-detail { margin-top: 22px; padding: 16px 18px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); min-height: 88px; }
+    .arch-detail b { display: block; margin-bottom: 2px; }
+    .arch-detail p { margin: 0; color: var(--muted); font-size: .94rem; }
+    .arch-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+    .arch-result { font-size: .9rem; color: var(--muted); }
+
+    /* Pipeline */
+    .pipe { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin-top: 4px; }
+    .step { position: relative; text-align: center; padding: 0 6px; }
+    .step::before { content: ""; position: absolute; top: 17px; left: -50%; width: 100%; height: 2px; background: var(--line); transition: background .3s; }
+    .step:first-child::before { display: none; }
+    .step .bubble { position: relative; z-index: 1; width: 36px; height: 36px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--line); color: var(--muted); font-size: .9rem; transition: all .3s; }
+    .step b { display: block; font-size: .88rem; }
+    .step span { display: block; color: var(--muted); font-size: .78rem; line-height: 1.4; }
+    .step.done::before { background: var(--ok); }
+    .step.done .bubble { border-color: var(--ok); background: var(--ok); color: #fff; transform: scale(1.05); }
+    .step.failed .bubble { border-color: var(--bad); background: var(--bad); color: #fff; }
+    .pipe-meta { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; display: flex; flex-wrap: wrap; gap: 6px 16px; }
 
     .skill-group + .skill-group { margin-top: 18px; }
     .skill-group h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
     .skill-group .tags { margin-top: 0; }
-    .skill-group .tag { font-size: .85rem; color: var(--text); }
+    .skill-group .tag { font-size: .85rem; color: var(--text); transition: border-color .15s; }
+    .skill-group .tag:hover { border-color: var(--accent); }
 
     .row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
     .row:first-of-type { border-top: 0; padding-top: 0; }
     .row strong { display: block; }
     .row > .meta, .row > a { white-space: nowrap; }
 
-    footer { margin-top: 64px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+    footer { margin-top: 72px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
     footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (max-width: 860px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 760px) {
       .nav-links { display: none; }
       .nav-actions { margin-left: auto; }
-      .hero { padding: 48px 0 40px; }
+      .hero { padding: 40px 0 36px; }
       .row { flex-direction: column; gap: 2px; }
+      .track { gap: 6px; }
+      .node { font-size: .72rem; padding: 10px 4px; }
+      .pipe { grid-template-columns: repeat(3, 1fr); row-gap: 22px; }
+      .step:nth-child(4)::before { display: none; }
+    }
+    /* People who asked their system for less motion get the final state at once. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .reveal { opacity: 1; transform: none; }
     }
   </style>
 </head>
@@ -111,10 +184,10 @@
   <div class="wrap">
     <a class="brand" href="#top">Zihao Zhou</a>
     <div class="nav-links">
+      <a href="#how" data-i18n="nav.how">How it works</a>
       <a href="#experience" data-i18n="nav.experience">Experience</a>
       <a href="#projects" data-i18n="nav.projects">Projects</a>
       <a href="#skills" data-i18n="nav.skills">Skills</a>
-      <a href="#education" data-i18n="nav.education">Education</a>
     </div>
     <div class="nav-actions">
       <a class="pill" href="/ops/" title="Live operational status of this site">
@@ -130,20 +203,30 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <div class="eyebrow"><i class="fas fa-location-dot"></i> <span data-i18n="hero.location">Barcelona · currently on exchange in Taipei</span></div>
-    <h1>Zihao Zhou</h1>
-    <p class="role" data-i18n="hero.role">Cloud &amp; DevOps Engineer</p>
-    <p class="lead" data-i18n="hero.lead">I build and run cloud infrastructure as code: AWS, Terraform and GitHub Actions, with a focus on security, automation and keeping costs low. This site is one of my projects, and you can see how it is running right now.</p>
-    <div class="cta">
-      <a class="btn primary" href="/ops/"><i class="fas fa-gauge-high"></i> <span data-i18n="hero.ops">How this site runs</span></a>
-      <a class="btn" href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
-      <a class="btn" href="https://www.linkedin.com/in/zihao-zhou-a7334628a" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a>
-      <a class="btn" href="mailto:zizo.xhao@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow"><i class="fas fa-location-dot"></i> <span data-i18n="hero.location">Barcelona · currently on exchange in Taipei</span></div>
+        <h1>Zihao Zhou</h1>
+        <p class="role" data-i18n="hero.role">Cloud &amp; DevOps Engineer</p>
+        <p class="lead" data-i18n="hero.lead">I build and run cloud infrastructure as code: AWS, Terraform and GitHub Actions, with a focus on security, automation and low cost. The terminal on this page is not a demo: it queries this site's real API and status.</p>
+        <div class="cta">
+          <a class="btn primary" href="#how"><i class="fas fa-diagram-project"></i> <span data-i18n="hero.how">See how it works</span></a>
+          <a class="btn" href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+          <a class="btn" href="https://www.linkedin.com/in/zihao-zhou-a7334628a" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a>
+          <a class="btn" href="mailto:zizo.xhao@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+        </div>
+      </div>
+
+      <div class="term" aria-label="Live terminal showing this site's real status">
+        <div class="term-bar"><i></i><i></i><i></i><span>zihao@zihao-cv.site: ~</span><span class="term-live">live</span></div>
+        <div class="term-body" id="term" aria-live="polite"></div>
+      </div>
     </div>
+
     <div class="stats">
       <div class="stat"><b>AWS SAA</b><span data-i18n="stat.cert">Certified Solutions Architect</span></div>
       <div class="stat"><b>DevOps</b><span data-i18n="stat.intern">Intern at Aizon, 2026</span></div>
-      <div class="stat"><b>~$0.02<small>/mo</small></b><span data-i18n="stat.cost">to run this whole site</span></div>
+      <div class="stat"><b id="stat-cost">~$0.02</b><span data-i18n="stat.cost">per month to run this site</span></div>
       <div class="stat" title="Live data from DynamoDB"><b id="counter">…</b><span data-i18n="stat.visits">visits, counted by a Lambda</span></div>
     </div>
   </div>
@@ -151,73 +234,109 @@
 
 <main class="wrap">
 
-  <section id="experience">
-    <h2 data-i18n="exp.title">Experience</h2>
-    <p class="section-sub" data-i18n="exp.sub">Working on production cloud infrastructure in a regulated industry.</p>
+  <section id="how" class="reveal">
+    <h2 data-i18n="how.title">How this site works</h2>
+    <p class="section-sub" data-i18n="how.sub">Every component below is real and managed with Terraform. Hover or tap one to see what it does and how it is secured. The dots show your own requests travelling through it.</p>
+    <div class="card arch">
+      <div class="lane">
+        <div class="lane-label"><span data-i18n="how.lane1">The page you are reading</span><span class="mono" id="lane1-result"></span></div>
+        <div class="track" id="lane-page">
+          <span class="packet"></span>
+          <button class="node" data-node="browser"><i class="fas fa-globe"></i>Browser</button>
+          <button class="node" data-node="cloudflare"><i class="fab fa-cloudflare"></i>Cloudflare</button>
+          <button class="node" data-node="cloudfront"><i class="fas fa-bolt"></i>CloudFront</button>
+          <button class="node" data-node="s3"><i class="fas fa-box-archive"></i>S3</button>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="lane-label"><span data-i18n="how.lane2">The visitor counter</span><span class="mono" id="lane2-result"></span></div>
+        <div class="track" id="lane-api">
+          <span class="packet"></span>
+          <button class="node" data-node="browser"><i class="fas fa-globe"></i>Browser</button>
+          <button class="node" data-node="apigw"><i class="fas fa-door-open"></i>API Gateway</button>
+          <button class="node" data-node="lambda"><span class="lambda">λ</span>Lambda</button>
+          <button class="node" data-node="dynamodb"><i class="fas fa-database"></i>DynamoDB</button>
+        </div>
+      </div>
+      <div class="arch-detail" id="arch-detail" aria-live="polite">
+        <b data-i18n="how.hint.t">Pick a component</b>
+        <p data-i18n="how.hint.d">Each one has a security or cost decision behind it.</p>
+      </div>
+      <div class="arch-actions">
+        <button class="btn" id="send-health" type="button"><i class="fas fa-paper-plane"></i> <span data-i18n="how.send">Send a health check</span></button>
+        <span class="arch-result" id="health-result" data-i18n="how.send.note">Calls GET /health: read-only, it does not change the counter.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline" class="reveal">
+    <h2 data-i18n="pipe.title">How changes reach production</h2>
+    <p class="section-sub" data-i18n="pipe.sub">Nobody deploys from a laptop. This is the path of the latest change, read from the pipeline's own record.</p>
     <div class="card">
+      <div class="pipe" id="pipe">
+        <div class="step"><div class="bubble"><i class="fas fa-code-pull-request"></i></div><b data-i18n="pipe.1">Pull request</b><span data-i18n="pipe.1d">Every change</span></div>
+        <div class="step"><div class="bubble"><i class="fas fa-list-check"></i></div><b data-i18n="pipe.2">7 checks</b><span>fmt · tflint · Checkov · pytest</span></div>
+        <div class="step"><div class="bubble"><i class="fas fa-file-lines"></i></div><b data-i18n="pipe.3">Plan review</b><span data-i18n="pipe.3d">posted on the PR</span></div>
+        <div class="step"><div class="bubble"><i class="fas fa-code-merge"></i></div><b data-i18n="pipe.4">Merge</b><span data-i18n="pipe.4d">protected main</span></div>
+        <div class="step"><div class="bubble"><i class="fas fa-key"></i></div><b data-i18n="pipe.5">Apply</b><span data-i18n="pipe.5d">OIDC, no stored keys</span></div>
+        <div class="step"><div class="bubble"><i class="fas fa-heart-pulse"></i></div><b data-i18n="pipe.6">Smoke test</b><span data-i18n="pipe.6d">live site + /health</span></div>
+      </div>
+      <div class="pipe-meta" id="pipe-meta"><span data-i18n="pipe.loading">Loading the latest run…</span></div>
+    </div>
+  </section>
+
+  <section id="experience" class="reveal">
+    <h2 data-i18n="exp.title">Experience</h2>
+    <p class="section-sub" data-i18n="exp.sub">Production cloud infrastructure in a regulated industry.</p>
+    <div class="card lift">
       <div class="card-head">
         <h3 data-i18n="exp.aizon.role">DevOps Engineer Intern · Aizon (Bigfinite Barcelona)</h3>
         <span class="meta" data-i18n="exp.aizon.when">Mar 2026 – Aug 2026 · Barcelona</span>
       </div>
       <ul class="points">
         <li data-i18n="exp.aizon.1">Provisioned and managed secure AWS infrastructure as code with OpenTofu (Terraform), Terragrunt and CloudFormation.</li>
-        <li data-i18n="exp.aizon.2">Ran infrastructure rollouts and the commissioning and decommissioning of product environments through automated CI/CD pipelines, tracking every deployment and release in Jira.</li>
+        <li data-i18n="exp.aizon.2">Ran infrastructure rollouts and the commissioning and decommissioning of product environments through automated CI/CD pipelines, tracked in Jira.</li>
         <li data-i18n="exp.aizon.3">Maintained GitHub Actions workflows and wrote Python and Bash scripts to streamline CI/CD operations.</li>
-        <li data-i18n="exp.aizon.4">Patched vulnerabilities and audited third-party dependencies to keep infrastructure compliant with ISO 27001, SOC 2 and GAMP.</li>
+        <li data-i18n="exp.aizon.4">Patched vulnerabilities and audited third-party dependencies for ISO 27001, SOC 2 and GAMP compliance.</li>
       </ul>
       <div class="tags"><span class="tag">AWS</span><span class="tag">OpenTofu</span><span class="tag">Terragrunt</span><span class="tag">CloudFormation</span><span class="tag">GitHub Actions</span><span class="tag">Python</span><span class="tag">Bash</span></div>
     </div>
   </section>
 
-  <section id="projects">
+  <section id="projects" class="reveal">
     <h2 data-i18n="proj.title">Projects</h2>
     <p class="section-sub" data-i18n="proj.sub">Built to be run like production, not just to work once.</p>
-
-    <div class="card featured">
-      <span class="badge" data-i18n="proj.site.badge">This website</span>
+    <div class="card lift">
       <div class="card-head">
-        <h3 data-i18n="proj.site.name">Production-grade serverless platform on AWS</h3>
+        <h3 data-i18n="proj.site.name">This website: a production-grade serverless platform</h3>
         <span class="meta">Terraform · GitHub Actions · AWS</span>
       </div>
-      <div class="flow" aria-label="Architecture">
-        <span>Cloudflare</span><i class="fas fa-arrow-right"></i><span>CloudFront</span><i class="fas fa-arrow-right"></i><span>S3</span>
-        <span style="margin-left:10px">API Gateway</span><i class="fas fa-arrow-right"></i><span>Lambda</span><i class="fas fa-arrow-right"></i><span>DynamoDB</span>
-      </div>
       <ul class="points">
-        <li data-i18n="proj.site.1">Every change goes through a pull request: Terraform fmt, validate, tflint, Checkov security scanning and unit tests, with the Terraform plan posted as a comment before merging.</li>
-        <li data-i18n="proj.site.2">Merging deploys automatically with short-lived OIDC credentials. No AWS keys are stored anywhere, and the pipeline cannot change its own permissions.</li>
-        <li data-i18n="proj.site.3">Least privilege down to a single database item, CORS locked to this domain, throttling, security headers and point-in-time backups.</li>
-        <li data-i18n="proj.site.4">Alarms, an external uptime check every 5 minutes, a nightly drift check that opens a GitHub issue, and a runbook for every alert.</li>
-        <li data-i18n="proj.site.5">Recovered a lost Terraform state by importing the live resources with zero downtime. Runs inside the AWS free tier, at about two cents a month.</li>
+        <li data-i18n="proj.site.1">Pull-request pipeline with security scanning and the Terraform plan posted for review; merging deploys with short-lived OIDC credentials.</li>
+        <li data-i18n="proj.site.2">Least privilege down to a single database item; the pipeline cannot change its own permissions.</li>
+        <li data-i18n="proj.site.3">Alarms, an external uptime probe, nightly drift detection, a runbook and a public status page.</li>
+        <li data-i18n="proj.site.4">Recovered a lost Terraform state with zero downtime. Runs inside the AWS free tier.</li>
       </ul>
-      <div class="tags"><span class="tag">Terraform</span><span class="tag">GitHub Actions</span><span class="tag">OIDC</span><span class="tag">Lambda</span><span class="tag">DynamoDB</span><span class="tag">CloudFront</span><span class="tag">CloudWatch</span><span class="tag">Checkov</span><span class="tag">pytest</span></div>
       <div class="links">
         <a href="https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge" target="_blank" rel="noopener"><i class="fab fa-github"></i> <span data-i18n="proj.code">Source code</span></a>
-        <a href="/ops/"><i class="fas fa-gauge-high"></i> <span data-i18n="proj.site.status">Live status</span></a>
+        <a href="/ops/"><i class="fas fa-gauge-high"></i> <span data-i18n="proj.status">Live status</span></a>
       </div>
     </div>
-
     <div class="grid-2" style="margin-top:16px">
-      <div class="card">
+      <div class="card lift">
         <div class="card-head"><h3 data-i18n="proj.ecs.name">Containerized app on ECS Fargate</h3></div>
-        <ul class="points">
-          <li data-i18n="proj.ecs.1">CI/CD pipeline in GitHub Actions that builds multi-stage Docker images, pushes them to ECR and deploys a Flask app to ECS Fargate with zero-downtime rolling updates.</li>
-        </ul>
+        <p class="meta" data-i18n="proj.ecs.1">GitHub Actions builds multi-stage Docker images, pushes them to ECR and deploys a Flask app to ECS Fargate with zero-downtime rolling updates.</p>
         <div class="tags"><span class="tag">Docker</span><span class="tag">ECR</span><span class="tag">ECS Fargate</span><span class="tag">Flask</span></div>
-        <div class="links"><a href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></div>
       </div>
-      <div class="card">
+      <div class="card lift">
         <div class="card-head"><h3 data-i18n="proj.k8s.name">Kubernetes application management</h3></div>
-        <ul class="points">
-          <li data-i18n="proj.k8s.1">YAML manifests to deploy, scale and manage a containerized Flask REST API with a MongoDB database on Minikube.</li>
-        </ul>
+        <p class="meta" data-i18n="proj.k8s.1">YAML manifests to deploy, scale and manage a Flask REST API with a MongoDB database on Minikube.</p>
         <div class="tags"><span class="tag">Kubernetes</span><span class="tag">Minikube</span><span class="tag">MongoDB</span></div>
-        <div class="links"><a href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></div>
       </div>
     </div>
   </section>
 
-  <section id="skills">
+  <section id="skills" class="reveal">
     <h2 data-i18n="skills.title">Skills</h2>
     <p class="section-sub" data-i18n="skills.sub">What I use day to day.</p>
     <div class="card">
@@ -227,7 +346,7 @@
       </div>
       <div class="skill-group">
         <h3 data-i18n="skills.cicd">CI/CD &amp; operations</h3>
-        <div class="tags"><span class="tag">GitHub Actions</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Git</span><span class="tag">Linux (Ubuntu)</span><span class="tag">CloudWatch</span><span class="tag">Checkov</span></div>
+        <div class="tags"><span class="tag">GitHub Actions</span><span class="tag">OIDC</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Git</span><span class="tag">Linux (Ubuntu)</span><span class="tag">CloudWatch</span><span class="tag">Checkov</span><span class="tag">tflint</span></div>
       </div>
       <div class="skill-group">
         <h3 data-i18n="skills.dev">Programming &amp; scripting</h3>
@@ -236,7 +355,7 @@
     </div>
   </section>
 
-  <section id="education">
+  <section id="education" class="reveal">
     <h2 data-i18n="edu.title">Education &amp; certifications</h2>
     <p class="section-sub" data-i18n="edu.sub">Studying telecom networks in Barcelona and computer science in Taipei.</p>
     <div class="grid-2">
@@ -247,7 +366,7 @@
         </div>
         <div class="row">
           <div><strong data-i18n="edu.ntu">Computer Science &amp; Information Engineering</strong><span class="meta" data-i18n="edu.ntu.where">National Taiwan University · exchange</span></div>
-          <span class="meta" data-i18n="edu.ntu.when">2026 – present</span>
+          <span class="meta">2026</span>
         </div>
       </div>
       <div class="card">
@@ -272,76 +391,269 @@
 </footer>
 
 <script>
-  // --- Spanish translations (English is the text already in the page) ---
+  var API = "https://ubnjbwuf9e.execute-api.us-east-1.amazonaws.com";
+  var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, REDUCED ? 0 : ms); }); }
+
+  // ---------------------------------------------------------------- language
   var ES = {
-    "nav.experience": "Experiencia", "nav.projects": "Proyectos", "nav.skills": "Habilidades", "nav.education": "Formación", "nav.status": "Estado",
+    "nav.how": "Cómo funciona", "nav.experience": "Experiencia", "nav.projects": "Proyectos", "nav.skills": "Habilidades", "nav.status": "Estado",
     "hero.location": "Barcelona · ahora de intercambio en Taipéi",
     "hero.role": "Ingeniero Cloud y DevOps",
-    "hero.lead": "Construyo y opero infraestructura cloud como código: AWS, Terraform y GitHub Actions, con foco en seguridad, automatización y costes bajos. Esta web es uno de mis proyectos, y puedes ver cómo está funcionando ahora mismo.",
-    "hero.ops": "Cómo funciona esta web",
-    "stat.cert": "Solutions Architect certificado", "stat.intern": "Prácticas en Aizon, 2026", "stat.cost": "lo que cuesta toda esta web", "stat.visits": "visitas, contadas por una Lambda",
+    "hero.lead": "Construyo y opero infraestructura cloud como código: AWS, Terraform y GitHub Actions, con foco en seguridad, automatización y costes bajos. El terminal de esta página no es una demo: consulta la API y el estado reales de esta web.",
+    "hero.how": "Ver cómo funciona",
+    "stat.cert": "Solutions Architect certificado", "stat.intern": "Prácticas en Aizon, 2026", "stat.cost": "al mes, lo que cuesta esta web", "stat.visits": "visitas, contadas por una Lambda",
+    "how.title": "Cómo funciona esta web",
+    "how.sub": "Cada componente es real y está gestionado con Terraform. Pasa el ratón o toca uno para ver qué hace y cómo está protegido. Los puntos muestran tus propias peticiones recorriéndolo.",
+    "how.lane1": "La página que estás leyendo", "how.lane2": "El contador de visitas",
+    "how.hint.t": "Elige un componente", "how.hint.d": "Detrás de cada uno hay una decisión de seguridad o de coste.",
+    "how.send": "Enviar un health check", "how.send.note": "Llama a GET /health: solo lectura, no cambia el contador.",
+    "pipe.title": "Cómo llegan los cambios a producción",
+    "pipe.sub": "Nadie despliega desde un portátil. Este es el recorrido del último cambio, leído del propio registro del pipeline.",
+    "pipe.1": "Pull request", "pipe.1d": "Todo cambio", "pipe.2": "7 checks", "pipe.3": "Revisión del plan", "pipe.3d": "publicado en el PR",
+    "pipe.4": "Merge", "pipe.4d": "main protegido", "pipe.5": "Apply", "pipe.5d": "OIDC, sin claves", "pipe.6": "Smoke test", "pipe.6d": "web + /health",
+    "pipe.loading": "Cargando la última ejecución…",
     "exp.title": "Experiencia", "exp.sub": "Infraestructura cloud en producción en un sector regulado.",
-    "exp.aizon.role": "DevOps Engineer en prácticas · Aizon (Bigfinite Barcelona)",
-    "exp.aizon.when": "mar 2026 – ago 2026 · Barcelona",
+    "exp.aizon.role": "DevOps Engineer en prácticas · Aizon (Bigfinite Barcelona)", "exp.aizon.when": "mar 2026 – ago 2026 · Barcelona",
     "exp.aizon.1": "Aprovisioné y gestioné infraestructura segura en AWS como código con OpenTofu (Terraform), Terragrunt y CloudFormation.",
-    "exp.aizon.2": "Ejecuté despliegues de infraestructura y la puesta en marcha y retirada de entornos de producto mediante pipelines CI/CD automatizados, registrando cada despliegue y release en Jira.",
+    "exp.aizon.2": "Ejecuté despliegues de infraestructura y la puesta en marcha y retirada de entornos de producto con pipelines CI/CD automatizados, registrados en Jira.",
     "exp.aizon.3": "Mantuve workflows de GitHub Actions y escribí scripts en Python y Bash para agilizar las operaciones de CI/CD.",
     "exp.aizon.4": "Apliqué parches de vulnerabilidades y audité dependencias de terceros para cumplir ISO 27001, SOC 2 y GAMP.",
     "proj.title": "Proyectos", "proj.sub": "Pensados para operar como en producción, no solo para funcionar una vez.",
-    "proj.site.badge": "Esta web", "proj.site.name": "Plataforma serverless en AWS con prácticas de producción",
-    "proj.site.1": "Cada cambio pasa por un pull request: Terraform fmt, validate, tflint, análisis de seguridad con Checkov y tests unitarios, con el plan de Terraform publicado como comentario antes de fusionar.",
-    "proj.site.2": "Al fusionar se despliega automáticamente con credenciales OIDC de corta duración. No hay claves de AWS guardadas en ningún sitio y el pipeline no puede cambiar sus propios permisos.",
-    "proj.site.3": "Mínimo privilegio hasta un único elemento de la base de datos, CORS limitado a este dominio, throttling, cabeceras de seguridad y copias de seguridad point-in-time.",
-    "proj.site.4": "Alarmas, una comprobación externa de disponibilidad cada 5 minutos, una detección de drift cada noche que abre un issue en GitHub y un runbook para cada alerta.",
-    "proj.site.5": "Recuperé un estado de Terraform perdido importando los recursos en producción sin tiempo de inactividad. Funciona dentro de la capa gratuita de AWS, por unos dos céntimos al mes.",
-    "proj.code": "Código fuente", "proj.site.status": "Estado en vivo",
+    "proj.site.name": "Esta web: una plataforma serverless con prácticas de producción",
+    "proj.site.1": "Pipeline de pull requests con análisis de seguridad y el plan de Terraform publicado para revisión; al fusionar se despliega con credenciales OIDC de corta duración.",
+    "proj.site.2": "Mínimo privilegio hasta un único elemento de la base de datos; el pipeline no puede cambiar sus propios permisos.",
+    "proj.site.3": "Alarmas, una sonda externa de disponibilidad, detección nocturna de drift, un runbook y una página de estado pública.",
+    "proj.site.4": "Recuperé un estado de Terraform perdido sin tiempo de inactividad. Funciona dentro de la capa gratuita de AWS.",
+    "proj.code": "Código fuente", "proj.status": "Estado en vivo",
     "proj.ecs.name": "Aplicación en contenedores en ECS Fargate",
-    "proj.ecs.1": "Pipeline CI/CD en GitHub Actions que construye imágenes Docker multi-stage, las sube a ECR y despliega una app Flask en ECS Fargate con actualizaciones rolling sin interrupción.",
+    "proj.ecs.1": "GitHub Actions construye imágenes Docker multi-stage, las sube a ECR y despliega una app Flask en ECS Fargate con actualizaciones rolling sin interrupción.",
     "proj.k8s.name": "Gestión de aplicaciones en Kubernetes",
-    "proj.k8s.1": "Manifiestos YAML para desplegar, escalar y gestionar una API REST en Flask con base de datos MongoDB en Minikube.",
+    "proj.k8s.1": "Manifiestos YAML para desplegar, escalar y gestionar una API REST en Flask con MongoDB en Minikube.",
     "skills.title": "Habilidades", "skills.sub": "Lo que uso en el día a día.", "skills.cloud": "Cloud e IaC", "skills.cicd": "CI/CD y operaciones", "skills.dev": "Programación y scripting",
     "edu.title": "Formación y certificaciones", "edu.sub": "Estudio redes de telecomunicación en Barcelona e informática en Taipéi.",
     "edu.upf": "Ingeniería de Redes de Telecomunicación", "edu.upf.where": "Universitat Pompeu Fabra · en inglés", "edu.upf.when": "2023 – actualidad",
-    "edu.ntu": "Ciencias de la Computación e Ingeniería de la Información", "edu.ntu.where": "Universidad Nacional de Taiwán · intercambio", "edu.ntu.when": "2026 – actualidad",
+    "edu.ntu": "Ciencias de la Computación e Ingeniería de la Información", "edu.ntu.where": "Universidad Nacional de Taiwán · intercambio",
     "edu.verify": "Verificar",
     "lang.title": "Idiomas", "lang.list": "Chino (nativo) · Inglés (C1, profesional) · Español (nivel de trabajo)",
     "footer.built": "Desplegada con <a href=\"https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge\" target=\"_blank\" rel=\"noopener\">GitHub Actions + Terraform</a> en AWS · <a href=\"/ops/\">estado en vivo</a>"
   };
-
   var EN = {};
   document.querySelectorAll("[data-i18n]").forEach(function (el) { EN[el.dataset.i18n] = el.textContent; });
   document.querySelectorAll("[data-i18n-html]").forEach(function (el) { EN[el.dataset.i18nHtml] = el.innerHTML; });
+  var LANG = "en";
+  var activeNode = null, lastDeploy = null;
 
+  function t(key) { return (LANG === "es" && ES[key]) || EN[key] || key; }
   function setLang(lang) {
-    var dict = lang === "es" ? ES : EN;
-    document.querySelectorAll("[data-i18n]").forEach(function (el) {
-      var t = dict[el.dataset.i18n]; if (t) el.textContent = t;
-    });
-    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
-      var t = dict[el.dataset.i18nHtml]; if (t) el.innerHTML = t;
-    });
+    LANG = lang;
+    document.querySelectorAll("[data-i18n]").forEach(function (el) { var v = t(el.dataset.i18n); if (v) el.textContent = v; });
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) { var v = t(el.dataset.i18nHtml); if (v) el.innerHTML = v; });
     document.documentElement.lang = lang;
     document.getElementById("btn-en").classList.toggle("active", lang === "en");
     document.getElementById("btn-es").classList.toggle("active", lang === "es");
+    if (activeNode) showNode(activeNode);
+    if (lastDeploy) renderPipelineMeta(lastDeploy);
     try { localStorage.setItem("lang", lang); } catch (e) {}
   }
-  try { if (localStorage.getItem("lang") === "es") setLang("es"); } catch (e) {}
 
-  // --- Visitor counter: each page view adds one (atomic update in DynamoDB) ---
-  fetch("https://ubnjbwuf9e.execute-api.us-east-1.amazonaws.com/count")
-    .then(function (r) { return r.json(); })
-    .then(function (d) { document.getElementById("counter").textContent = Number(d.count).toLocaleString(); })
-    .catch(function () { document.getElementById("counter").textContent = "–"; });
+  function ago(iso) {
+    var mins = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (isNaN(mins)) return "";
+    var rtf = new Intl.RelativeTimeFormat(LANG, { numeric: "auto" });
+    if (mins < 60) return rtf.format(-mins, "minute");
+    if (mins < 48 * 60) return rtf.format(-Math.round(mins / 60), "hour");
+    return rtf.format(-Math.round(mins / 1440), "day");
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
-  // --- Status light: green if the last deploy succeeded and there is no drift ---
-  Promise.all(["deploy", "drift"].map(function (f) {
-    return fetch("/ops/" + f + ".json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
-  })).then(function (res) {
-    var deploy = res[0], drift = res[1];
-    if (!deploy && !drift) return;
-    var healthy = (!deploy || deploy.result === "success") && (!drift || drift.drift === false);
+  // ---------------------------------------------------------------- live data (each fetched once)
+  function timed(url) {
+    var start = performance.now();
+    return fetch(url).then(function (r) {
+      return r.json().then(function (body) { return { status: r.status, body: body, ms: Math.round(performance.now() - start) }; });
+    });
+  }
+  function getJSON(file) {
+    return fetch("/ops/" + file, { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+  // The one real visit: this call adds one to the counter.
+  var visit = timed(API + "/count").catch(function () { return null; });
+  var deployP = getJSON("deploy.json"), driftP = getJSON("drift.json"), summaryP = getJSON("summary.json");
+
+  // ---------------------------------------------------------------- terminal
+  var term = document.getElementById("term");
+  function line(html) { var d = document.createElement("div"); d.innerHTML = html; term.appendChild(d); return d; }
+  function typeCmd(cmd) {
+    var d = line('<span class="p">$</span> <span class="cmd"></span><span class="cursor"></span>');
+    var target = d.querySelector(".cmd"), i = 0;
+    return new Promise(function (done) {
+      (function tick() {
+        if (i >= cmd.length || REDUCED) { target.textContent = cmd; d.querySelector(".cursor").remove(); return done(); }
+        target.textContent += cmd[i++];
+        setTimeout(tick, 24);
+      })();
+    });
+  }
+
+  async function runTerminal() {
+    await typeCmd('curl -s "$API/count"');
+    var v = await visit;
+    line(v ? '<span class="out">' + esc(JSON.stringify(v.body)) + '</span>  <span class="c"># ' + v.ms + ' ms, that was your visit</span>'
+           : '<span class="w">curl: (7) API unreachable from here</span>');
+    await sleep(350);
+
+    await typeCmd("terraform plan -detailed-exitcode");
+    var drift = await driftP;
+    line(!drift ? '<span class="c">no drift report yet</span>'
+         : drift.drift ? '<span class="w">Drift detected: AWS differs from the code.</span>'
+         : '<span class="k">No changes.</span> <span class="out">Infrastructure matches the configuration.</span>');
+    if (drift) line('<span class="c"># checked ' + esc(ago(drift.checked_at)) + ' by the nightly job</span>');
+    await sleep(350);
+
+    await typeCmd("uptime --last 30d");
+    var s = await summaryP;
+    line(s && s.uptime_30d_percent != null
+      ? '<span class="out">' + s.uptime_30d_percent.toFixed(2) + '%</span>  <span class="c"># target ' + s.slo_percent + '%, external probe every 5 min</span>'
+      : '<span class="c">collecting data…</span>');
+    await sleep(350);
+
+    await typeCmd("aws budgets describe-budget");
+    line(s ? '<span class="out">$' + s.cost_month_to_date.toFixed(2) + ' this month</span>  <span class="c"># budget $' + s.budget.toFixed(2) + '</span>'
+           : '<span class="c">no cost report yet</span>');
+    if (s) document.getElementById("stat-cost").textContent = "$" + s.cost_month_to_date.toFixed(2);
+    line('<span class="p">$</span> <span class="cursor"></span>');
+  }
+
+  // ---------------------------------------------------------------- counter (count-up)
+  visit.then(function (v) {
+    var el = document.getElementById("counter");
+    if (!v || typeof v.body.count !== "number") { el.textContent = "–"; return; }
+    var target = v.body.count, start = performance.now(), dur = REDUCED ? 0 : 1200;
+    (function step(now) {
+      var p = dur ? Math.min(1, (now - start) / dur) : 1;
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString();
+      if (p < 1) requestAnimationFrame(step);
+    })(start);
+  });
+
+  // ---------------------------------------------------------------- status light
+  Promise.all([deployP, driftP]).then(function (r) {
+    if (!r[0] && !r[1]) return;
+    var healthy = (!r[0] || r[0].result === "success") && (!r[1] || r[1].drift === false);
     document.getElementById("status-dot").className = "dot " + (healthy ? "ok" : "warn");
   });
+
+  // ---------------------------------------------------------------- architecture
+  var NODES = {
+    browser:    { en: ["Your browser", "Loads the page, then calls the API for the visitor counter. The API only answers browsers coming from this domain (CORS)."],
+                  es: ["Tu navegador", "Carga la página y luego llama a la API del contador. La API solo responde a navegadores desde este dominio (CORS)."] },
+    cloudflare: { en: ["Cloudflare", "DNS and the first line of defence: DDoS protection at the edge, for free. Traffic reaches AWS already filtered."],
+                  es: ["Cloudflare", "DNS y primera línea de defensa: protección DDoS en el borde, gratis. El tráfico llega a AWS ya filtrado."] },
+    cloudfront: { en: ["CloudFront", "CDN with HTTPS (ACM certificate), caching and security headers: HSTS, nosniff, frame denial, strict referrer policy."],
+                  es: ["CloudFront", "CDN con HTTPS (certificado ACM), caché y cabeceras de seguridad: HSTS, nosniff, sin frames, referrer estricto."] },
+    s3:         { en: ["S3", "Private, versioned bucket: only CloudFront can read it (Origin Access Control). A bad deploy can be rolled back to an earlier version."],
+                  es: ["S3", "Bucket privado y versionado: solo CloudFront puede leerlo (Origin Access Control). Un mal despliegue se puede revertir."] },
+    apigw:      { en: ["API Gateway (HTTP API)", "Throttled to 10 requests per second (burst 20) to cap abuse and cost. Every request is logged, without visitor IPs."],
+                  es: ["API Gateway (HTTP API)", "Limitada a 10 peticiones por segundo (ráfaga 20) para frenar abusos y costes. Cada petición se registra, sin IPs."] },
+    lambda:     { en: ["Lambda (Python 3.12)", "Its IAM role may only update or read one single item in one table. Errors go to CloudWatch; callers get a generic message."],
+                  es: ["Lambda (Python 3.12)", "Su rol IAM solo puede actualizar o leer un único elemento de una tabla. Los errores van a CloudWatch; el cliente recibe un mensaje genérico."] },
+    dynamodb:   { en: ["DynamoDB", "Atomic counter (UpdateItem), so simultaneous visits are never lost. Point-in-time recovery keeps 35 days of backups."],
+                  es: ["DynamoDB", "Contador atómico (UpdateItem): las visitas simultáneas nunca se pierden. Copias point-in-time de 35 días."] }
+  };
+  var detail = document.getElementById("arch-detail");
+  function showNode(key) {
+    activeNode = key;
+    var n = NODES[key][LANG] || NODES[key].en;
+    detail.innerHTML = "<b>" + esc(n[0]) + "</b><p>" + esc(n[1]) + "</p>";
+    document.querySelectorAll(".node").forEach(function (el) { el.classList.toggle("active", el.dataset.node === key); });
+  }
+  document.querySelectorAll(".node").forEach(function (el) {
+    el.addEventListener("mouseenter", function () { showNode(el.dataset.node); });
+    el.addEventListener("focus", function () { showNode(el.dataset.node); });
+    el.addEventListener("click", function () { showNode(el.dataset.node); });
+  });
+
+  function travel(laneId) {
+    var lane = document.getElementById(laneId), dot = lane.querySelector(".packet");
+    var nodes = lane.querySelectorAll(".node");
+    nodes.forEach(function (n) { n.classList.remove("hit"); });
+    dot.classList.remove("go"); void dot.offsetWidth; dot.classList.add("go");
+    nodes.forEach(function (n, i) { setTimeout(function () { n.classList.add("hit"); }, REDUCED ? 0 : 120 + i * 300); });
+    return sleep(1150);
+  }
+
+  // Animate the real requests once the diagram is on screen.
+  var archPlayed = false;
+  function playArchitecture() {
+    if (archPlayed) return; archPlayed = true;
+    var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+    travel("lane-page").then(function () {
+      if (nav && nav.duration) document.getElementById("lane1-result").textContent = "page loaded in " + Math.round(nav.duration) + " ms";
+      return visit;
+    }).then(function (v) {
+      return travel("lane-api").then(function () {
+        var label = document.getElementById("lane2-result");
+        label.textContent = v ? v.status + " OK · " + v.ms + " ms" : "unreachable from here";
+        label.classList.toggle("bad", !v);
+      });
+    });
+  }
+
+  document.getElementById("send-health").addEventListener("click", function () {
+    var out = document.getElementById("health-result");
+    out.textContent = "…";
+    timed(API + "/health").then(function (r) {
+      return travel("lane-api").then(function () {
+        out.textContent = "GET /health → " + r.status + " · " + r.ms + " ms · " + JSON.stringify(r.body);
+        document.getElementById("lane2-result").textContent = r.status + " OK · " + r.ms + " ms";
+      });
+    }).catch(function () { out.textContent = "GET /health → no response"; });
+  });
+
+  // ---------------------------------------------------------------- pipeline
+  function renderPipelineMeta(d) {
+    document.getElementById("pipe-meta").innerHTML =
+      '<span class="mono">' + esc(d.commit) + '</span>' +
+      '<span>' + esc(d.title) + '</span>' +
+      '<span>' + esc(ago(d.finished_at)) + '</span>' +
+      '<a href="' + esc(d.run_url) + '" target="_blank" rel="noopener">' + (LANG === "es" ? "ver ejecución" : "view run") + ' →</a>';
+  }
+  function playPipeline() {
+    deployP.then(function (d) {
+      if (!d) { document.getElementById("pipe-meta").textContent = "No run recorded yet."; return; }
+      lastDeploy = d;
+      renderPipelineMeta(d);
+      var steps = document.querySelectorAll("#pipe .step");
+      steps.forEach(function (s, i) {
+        setTimeout(function () {
+          var failed = i === steps.length - 1 && d.result !== "success";
+          s.classList.add(failed ? "failed" : "done");
+          s.querySelector(".bubble").innerHTML = failed ? '<i class="fas fa-xmark"></i>' : '<i class="fas fa-check"></i>';
+        }, REDUCED ? 0 : 250 + i * 320);
+      });
+    });
+  }
+
+  // ---------------------------------------------------------------- start
+  try { if (localStorage.getItem("lang") === "es") setLang("es"); } catch (e) {}
+  runTerminal();
+
+  var actions = { how: playArchitecture, pipeline: playPipeline };
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("in");
+        if (actions[e.target.id]) actions[e.target.id]();
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+    playArchitecture(); playPipeline();
+  }
 </script>
 </body>
 </html>
