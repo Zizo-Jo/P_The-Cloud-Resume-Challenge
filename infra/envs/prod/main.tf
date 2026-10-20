@@ -26,7 +26,9 @@ module "frontend" {
   source      = "../../modules/frontend"
   bucket_name = var.bucket_name
 
-  html_source = "${path.module}/../../../src/website/index.html"
+  html_source               = "${path.module}/../../../src/website/index.html"
+  ops_html_source           = "${path.module}/../../../src/website/ops/index.html"
+  dir_index_function_source = "${path.module}/../../../src/cloudfront/dir-index.js"
 }
 
 module "monitoring" {
