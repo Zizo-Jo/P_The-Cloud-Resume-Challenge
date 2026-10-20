@@ -152,6 +152,19 @@ data "aws_iam_policy_document" "plan_permissions" {
   }
 
   statement {
+    sid       = "ReadLambdaLogGroup"
+    actions   = ["logs:ListTagsForResource", "logs:ListTagsLogGroup"]
+    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.function_name}"]
+  }
+
+  # DescribeLogGroups does not support resource-level permissions.
+  statement {
+    sid       = "DescribeLogGroups"
+    actions   = ["logs:DescribeLogGroups"]
+    resources = ["*"]
+  }
+
+  statement {
     sid       = "ReadLambdaRole"
     actions   = ["iam:Get*", "iam:List*"]
     resources = ["arn:aws:iam::${local.account_id}:role/${local.lambda_role}"]
@@ -241,6 +254,19 @@ data "aws_iam_policy_document" "apply_permissions" {
       "lambda:UntagResource",
     ]
     resources = ["arn:aws:lambda:us-east-1:${local.account_id}:function:${local.function_name}"]
+  }
+
+  statement {
+    sid = "WriteLambdaLogGroup"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:DeleteLogGroup",
+      "logs:PutRetentionPolicy",
+      "logs:DeleteRetentionPolicy",
+      "logs:TagResource",
+      "logs:UntagResource",
+    ]
+    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.function_name}"]
   }
 
   statement {

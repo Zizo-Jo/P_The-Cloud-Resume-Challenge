@@ -30,6 +30,13 @@ resource "aws_iam_role" "iam" {
   })
 }
 
+# Created by Terraform (instead of by Lambda on first run) so we control the
+# retention. Without a retention setting, logs are kept, and billed, forever.
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/counter-${var.env}"
+  retention_in_days = 30
+}
+
 resource "aws_iam_role_policy" "policy" {
   name = "policy_${var.env}"
   role = aws_iam_role.iam.id
@@ -43,6 +50,12 @@ resource "aws_iam_role_policy" "policy" {
       Condition = {
         "ForAllValues:StringEquals" = { "dynamodb:LeadingKeys" = ["count"] }
       }
+      },
+      {
+        # The log group already exists, so the function only writes into it.
+        Effect   = "Allow",
+        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"],
+        Resource = "${aws_cloudwatch_log_group.lambda.arn}:*"
     }]
   })
 }
@@ -57,6 +70,7 @@ resource "aws_lambda_function" "func" {
   environment {
     variables = { TABLE_NAME = aws_dynamodb_table.t.name }
   }
+  depends_on = [aws_cloudwatch_log_group.lambda]
 }
 
 resource "aws_apigatewayv2_api" "api" {
