@@ -28,3 +28,12 @@ module "frontend" {
 
   html_source = "${path.module}/../../../src/website/index.html"
 }
+
+module "monitoring" {
+  source = "../../modules/monitoring"
+
+  env                  = var.name_suffix
+  alert_email          = var.alert_email
+  lambda_function_name = module.backend.function_name
+  api_id               = module.backend.api_id
+}
