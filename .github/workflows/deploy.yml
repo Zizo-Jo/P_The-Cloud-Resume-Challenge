@@ -30,6 +30,7 @@ jobs:
     env:
       TF_IN_AUTOMATION: "true"
       SITE_URL: https://zihao-cv.site
+      OPS_BUCKET: zihao-resume-dev-2026-v99 # where the /ops status files live
       TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }} # sensitive: where alarms are sent
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -66,3 +67,22 @@ jobs:
       - name: Smoke test
         working-directory: infra/envs/prod
         run: ../../../scripts/smoke_test.sh "$SITE_URL" "$(terraform output -raw HEALTH_URL)"
+
+      # Status for the public /ops page. Runs even when an earlier step failed,
+      # so a failed deploy shows up as failed. The commit title goes through jq
+      # as data, never into the shell as code.
+      - name: Publish deploy status
+        if: always()
+        env:
+          RESULT: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq -n \
+            --arg commit "${GITHUB_SHA::7}" \
+            --arg title "$(git log -1 --format=%s)" \
+            --arg result "$RESULT" \
+            --arg finished_at "$(date -u +%FT%TZ)" \
+            --arg run_url "$RUN_URL" \
+            '{commit: $commit, title: $title, result: $result, finished_at: $finished_at, run_url: $run_url}' > deploy.json
+          aws s3 cp deploy.json "s3://$OPS_BUCKET/ops/deploy.json" \
+            --content-type application/json --cache-control "max-age=60"

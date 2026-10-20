@@ -33,15 +33,12 @@ data "aws_iam_policy_document" "plan_trust" {
       values   = ["sts.amazonaws.com"]
     }
 
-    # Only pull requests of this repo, and the nightly drift check, which runs
-    # in the "drift" GitHub Environment (scheduled runs have no pull_request sub).
+    # Only pull requests of this repo. (The nightly drift check has its own
+    # role, github-actions-drift, in ops.tf.)
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values = [
-        "${local.github_sub_prefix}:pull_request",
-        "${local.github_sub_prefix}:environment:drift",
-      ]
+      values   = ["${local.github_sub_prefix}:pull_request"]
     }
   }
 }
