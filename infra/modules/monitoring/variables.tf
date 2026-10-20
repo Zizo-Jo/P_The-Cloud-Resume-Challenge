@@ -12,3 +12,16 @@ variable "lambda_function_name" {
 variable "api_id" {
   type = string
 }
+
+variable "uptime_source" {
+  type        = string
+  description = "Path to the uptime-check Lambda source file."
+}
+
+variable "site_url" {
+  type = string
+}
+
+variable "health_url" {
+  type = string
+}
