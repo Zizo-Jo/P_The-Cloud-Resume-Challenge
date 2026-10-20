@@ -33,11 +33,15 @@ data "aws_iam_policy_document" "plan_trust" {
       values   = ["sts.amazonaws.com"]
     }
 
-    # Only workflow runs triggered by a pull request in this repo.
+    # Only pull requests of this repo, and the nightly drift check, which runs
+    # in the "drift" GitHub Environment (scheduled runs have no pull_request sub).
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["${local.github_sub_prefix}:pull_request"]
+      values = [
+        "${local.github_sub_prefix}:pull_request",
+        "${local.github_sub_prefix}:environment:drift",
+      ]
     }
   }
 }
@@ -95,6 +99,13 @@ locals {
   table_name     = "visitors-dev"
   function_name  = "counter-dev"
   lambda_role    = "iam_for_lambda_dev"
+
+  # Phase 3 (monitoring)
+  uptime_function = "uptime-dev"
+  uptime_role     = "uptime_lambda_dev"
+  uptime_rule     = "uptime-dev-schedule"
+  sns_topic       = "zihao-cv-alerts"
+  alarm_prefix    = "zihao-cv-"
 }
 
 data "aws_iam_policy_document" "plan_permissions" {
@@ -134,9 +145,12 @@ data "aws_iam_policy_document" "plan_permissions" {
   }
 
   statement {
-    sid       = "ReadLambda"
-    actions   = ["lambda:Get*", "lambda:List*"]
-    resources = ["arn:aws:lambda:us-east-1:${local.account_id}:function:${local.function_name}"]
+    sid     = "ReadLambda"
+    actions = ["lambda:Get*", "lambda:List*"]
+    resources = [
+      "arn:aws:lambda:us-east-1:${local.account_id}:function:${local.function_name}",
+      "arn:aws:lambda:us-east-1:${local.account_id}:function:${local.uptime_function}",
+    ]
   }
 
   statement {
@@ -171,9 +185,49 @@ data "aws_iam_policy_document" "plan_permissions" {
   }
 
   statement {
-    sid       = "ReadLambdaRole"
-    actions   = ["iam:Get*", "iam:List*"]
-    resources = ["arn:aws:iam::${local.account_id}:role/${local.lambda_role}"]
+    sid     = "ReadLambdaRole"
+    actions = ["iam:Get*", "iam:List*"]
+    resources = [
+      "arn:aws:iam::${local.account_id}:role/${local.lambda_role}",
+      "arn:aws:iam::${local.account_id}:role/${local.uptime_role}",
+    ]
+  }
+
+  statement {
+    sid       = "ReadUptimeLogGroup"
+    actions   = ["logs:ListTagsForResource", "logs:ListTagsLogGroup"]
+    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.uptime_function}"]
+  }
+
+  statement {
+    sid       = "ReadAlertTopic"
+    actions   = ["sns:GetTopicAttributes", "sns:ListTagsForResource", "sns:ListSubscriptionsByTopic"]
+    resources = ["arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}"]
+  }
+
+  statement {
+    sid       = "ReadAlertSubscription"
+    actions   = ["sns:GetSubscriptionAttributes"]
+    resources = ["arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}:*"]
+  }
+
+  # DescribeAlarms does not support resource-level permissions.
+  statement {
+    sid       = "DescribeAlarms"
+    actions   = ["cloudwatch:DescribeAlarms"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid       = "ReadAlarmTags"
+    actions   = ["cloudwatch:ListTagsForResource"]
+    resources = ["arn:aws:cloudwatch:us-east-1:${local.account_id}:alarm:${local.alarm_prefix}*"]
+  }
+
+  statement {
+    sid       = "ReadUptimeSchedule"
+    actions   = ["events:DescribeRule", "events:ListTagsForResource", "events:ListTargetsByRule"]
+    resources = ["arn:aws:events:us-east-1:${local.account_id}:rule/${local.uptime_rule}"]
   }
 }
 
@@ -273,6 +327,79 @@ data "aws_iam_policy_document" "apply_permissions" {
     resources = ["arn:aws:lambda:us-east-1:${local.account_id}:function:${local.function_name}"]
   }
 
+  # The uptime function is created by the pipeline; its IAM role is created here
+  # in bootstrap and only passed on (see PassUptimeRole).
+  statement {
+    sid = "WriteUptimeLambda"
+    actions = [
+      "lambda:CreateFunction",
+      "lambda:DeleteFunction",
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:AddPermission",
+      "lambda:RemovePermission",
+      "lambda:TagResource",
+      "lambda:UntagResource",
+    ]
+    resources = ["arn:aws:lambda:us-east-1:${local.account_id}:function:${local.uptime_function}"]
+  }
+
+  statement {
+    sid = "WriteUptimeLogGroup"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:DeleteLogGroup",
+      "logs:PutRetentionPolicy",
+      "logs:DeleteRetentionPolicy",
+      "logs:TagResource",
+      "logs:UntagResource",
+    ]
+    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.uptime_function}"]
+  }
+
+  statement {
+    sid = "WriteUptimeSchedule"
+    actions = [
+      "events:PutRule",
+      "events:DeleteRule",
+      "events:PutTargets",
+      "events:RemoveTargets",
+      "events:TagResource",
+      "events:UntagResource",
+    ]
+    resources = ["arn:aws:events:us-east-1:${local.account_id}:rule/${local.uptime_rule}"]
+  }
+
+  statement {
+    sid = "WriteAlertTopic"
+    actions = [
+      "sns:CreateTopic",
+      "sns:DeleteTopic",
+      "sns:SetTopicAttributes",
+      "sns:Subscribe",
+      "sns:TagResource",
+      "sns:UntagResource",
+    ]
+    resources = ["arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}"]
+  }
+
+  statement {
+    sid       = "WriteAlertSubscription"
+    actions   = ["sns:Unsubscribe", "sns:SetSubscriptionAttributes"]
+    resources = ["arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}:*"]
+  }
+
+  statement {
+    sid = "WriteAlarms"
+    actions = [
+      "cloudwatch:PutMetricAlarm",
+      "cloudwatch:DeleteAlarms",
+      "cloudwatch:TagResource",
+      "cloudwatch:UntagResource",
+    ]
+    resources = ["arn:aws:cloudwatch:us-east-1:${local.account_id}:alarm:${local.alarm_prefix}*"]
+  }
+
   statement {
     sid = "WriteLambdaLogGroup"
     actions = [
@@ -353,9 +480,12 @@ data "aws_iam_policy_document" "apply_permissions" {
   }
 
   statement {
-    sid       = "PassLambdaRoleToLambda"
-    actions   = ["iam:PassRole"]
-    resources = ["arn:aws:iam::${local.account_id}:role/${local.lambda_role}"]
+    sid     = "PassLambdaRoleToLambda"
+    actions = ["iam:PassRole"]
+    resources = [
+      "arn:aws:iam::${local.account_id}:role/${local.lambda_role}",
+      "arn:aws:iam::${local.account_id}:role/${local.uptime_role}",
+    ]
 
     condition {
       test     = "StringEquals"
@@ -369,6 +499,51 @@ resource "aws_iam_role_policy" "github_apply" {
   name   = "apply-scoped-write"
   role   = aws_iam_role.github_apply.id
   policy = data.aws_iam_policy_document.apply_permissions.json
+}
+
+# --- Role of the uptime-check Lambda -----------------------------------------
+# Lives here (applied by hand) because the pipeline cannot create IAM roles.
+# It can write its own logs and publish custom metrics to one namespace only.
+
+resource "aws_iam_role" "uptime" {
+  name = local.uptime_role
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "uptime" {
+  name = "uptime-check"
+  role = aws_iam_role.uptime.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.uptime_function}:*"
+      },
+      {
+        # X-Ray does not support resource-level permissions.
+        Effect   = "Allow"
+        Action   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"]
+        Resource = "*"
+      },
+      {
+        # PutMetricData does not support resource-level permissions; the
+        # condition limits it to our own namespace.
+        Effect    = "Allow"
+        Action    = ["cloudwatch:PutMetricData"]
+        Resource  = "*"
+        Condition = { StringEquals = { "cloudwatch:namespace" = "ZihaoCV" } }
+      },
+    ]
+  })
 }
 
 output "github_plan_role_arn" {
