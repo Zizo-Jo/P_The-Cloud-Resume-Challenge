@@ -529,6 +529,12 @@ resource "aws_iam_role_policy" "uptime" {
         Resource = "arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.uptime_function}:*"
       },
       {
+        # X-Ray does not support resource-level permissions.
+        Effect   = "Allow"
+        Action   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"]
+        Resource = "*"
+      },
+      {
         # PutMetricData does not support resource-level permissions; the
         # condition limits it to our own namespace.
         Effect    = "Allow"
