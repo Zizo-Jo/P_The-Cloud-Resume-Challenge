@@ -57,9 +57,10 @@ resource "aws_iam_role_policy" "policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      # The function only ever runs update_item on the item with id "count".
+      # The function only touches the item with id "count": update_item for a
+      # visit, get_item for /health.
       Effect   = "Allow",
-      Action   = ["dynamodb:UpdateItem"],
+      Action   = ["dynamodb:UpdateItem", "dynamodb:GetItem"],
       Resource = aws_dynamodb_table.t.arn,
       Condition = {
         "ForAllValues:StringEquals" = { "dynamodb:LeadingKeys" = ["count"] }
@@ -142,6 +143,13 @@ resource "aws_apigatewayv2_integration" "int" {
 resource "aws_apigatewayv2_route" "route" {
   api_id    = aws_apigatewayv2_api.api.id
   route_key = "GET /count"
+  target    = "integrations/${aws_apigatewayv2_integration.int.id}"
+}
+
+# Read-only health check: used by the smoke test so deploys do not add visits.
+resource "aws_apigatewayv2_route" "health" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /health"
   target    = "integrations/${aws_apigatewayv2_integration.int.id}"
 }
 
