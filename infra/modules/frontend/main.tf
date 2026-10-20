@@ -79,6 +79,25 @@ resource "aws_s3_object" "html" {
   etag         = filemd5(var.html_source)
 }
 
+# Public status page. The JSON files it reads (ops/*.json) are written by the
+# pipeline and the ops-publisher Lambda, not by Terraform.
+resource "aws_s3_object" "ops_html" {
+  bucket       = aws_s3_bucket.b.id
+  key          = "ops/index.html"
+  source       = var.ops_html_source
+  content_type = "text/html"
+  etag         = filemd5(var.ops_html_source)
+}
+
+# Serves /ops and /ops/ from /ops/index.html (default_root_object only covers "/").
+resource "aws_cloudfront_function" "dir_index" {
+  name    = "zihao-cv-dir-index"
+  runtime = "cloudfront-js-2.0"
+  comment = "Serve directory URLs from their index.html"
+  publish = true
+  code    = file(var.dir_index_function_source)
+}
+
 # ACM Certificate Resource
 resource "aws_acm_certificate" "cert" {
   domain_name       = "zihao-cv.site"
@@ -142,6 +161,11 @@ resource "aws_cloudfront_distribution" "cdn" {
     compress                   = true
     cache_policy_id            = data.aws_cloudfront_cache_policy.optimized.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.dir_index.arn
+    }
   }
 
   restrictions {
