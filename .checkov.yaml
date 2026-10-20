@@ -22,13 +22,13 @@ skip-check:
   - CKV_AWS_374 # CloudFront geo restriction: visitors from everywhere are welcome
   - CKV_AWS_144 # S3 cross-region replication: overkill for one HTML file
   - CKV2_AWS_62 # S3 event notifications: nothing consumes them
+  - CKV_AWS_115 # Lambda reserved concurrency: impossible, account limit is 10 and AWS keeps 10 unreserved; API throttling caps abuse instead
   - CKV_AWS_158 # Log group KMS customer-managed key: ~$1/month; logs are already encrypted with AWS-owned keys
   - CKV_AWS_338 # Log retention of 1 year: compliance rule; 30 days is enough for a visitor counter
 
   # --- TODO Phase 2: real improvements, remove the line when fixed ---
   - CKV_AWS_76 # API Gateway access logging
   - CKV2_AWS_32 # CloudFront response headers policy (HSTS etc.)
-  - CKV_AWS_115 # Lambda reserved concurrency (caps abuse and cost)
   - CKV_AWS_21 # S3 versioning on the website bucket
   - CKV2_AWS_61 # S3 lifecycle rule (expire old versions)
   - CKV_AWS_28 # DynamoDB point-in-time recovery

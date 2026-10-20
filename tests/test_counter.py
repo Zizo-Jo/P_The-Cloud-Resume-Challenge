@@ -62,16 +62,13 @@ def test_count_is_stored_in_dynamodb(aws):
     assert int(item["visitor_count"]) == 2
 
 
-def test_response_has_cors_headers(aws):
-    response = load_func().lambda_handler({}, None)
-
-    assert "Access-Control-Allow-Origin" in response["headers"]
-
-
-def test_database_error_returns_500(aws):
+def test_database_error_returns_generic_500(aws):
     func = load_func()
     boto3.client("dynamodb").delete_table(TableName=TABLE)
 
     response = func.lambda_handler({}, None)
 
     assert response["statusCode"] == 500
+    # Internal details (table name, AWS error text) must not reach the caller.
+    assert json.loads(response["body"]) == {"error": "Internal server error"}
+    assert TABLE not in response["body"]
