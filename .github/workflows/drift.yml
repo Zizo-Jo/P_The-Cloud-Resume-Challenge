@@ -1,0 +1,100 @@
+name: drift
+
+# Nightly read-only check: does AWS still match the code?
+# Drift = someone changed something in the console, or a deploy half-failed.
+# A difference opens (or updates) a GitHub issue; no difference closes it.
+on:
+  schedule:
+    - cron: "17 6 * * *" # 06:17 UTC daily (off the hour, when schedulers are busy)
+  workflow_dispatch: # run it by hand from the Actions tab
+
+# No permissions by default; the job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: drift
+  cancel-in-progress: false
+
+jobs:
+  drift:
+    name: terraform drift check
+    runs-on: ubuntu-latest
+    # The "drift" Environment gives this job its own OIDC identity, which the
+    # read-only plan role trusts (scheduled runs have no pull_request identity).
+    environment: drift
+    permissions:
+      id-token: write # OIDC token to assume the read-only plan role
+      contents: read
+      issues: write # open / update / close the drift issue
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }} # must match what deploy uses, or it shows as drift
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.6
+          terraform_wrapper: false # keep real exit codes and plain output
+
+      # Same read-only role the pull requests use.
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::030342421998:role/github-actions-plan
+          aws-region: us-east-1
+
+      - name: Terraform plan
+        id: plan
+        working-directory: infra/envs/prod
+        run: |
+          terraform init -input=false
+          set +e
+          # -detailed-exitcode: 0 = no drift, 2 = drift, 1 = error
+          terraform plan -input=false -lock=false -no-color -detailed-exitcode > "$GITHUB_WORKSPACE/plan.txt" 2>&1
+          echo "exitcode=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Open, update or close the drift issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXITCODE: ${{ steps.plan.outputs.exitcode }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create drift --color B60205 --description "Infrastructure differs from the code" 2>/dev/null || true
+          ISSUE=$(gh issue list --label drift --state open --json number --jq '.[0].number // empty')
+
+          case "$EXITCODE" in
+            0)
+              if [ -n "$ISSUE" ]; then
+                gh issue close "$ISSUE" --comment "✅ No drift as of $(date -u +%F). Closing. ([run]($RUN_URL))"
+              fi
+              echo "No drift."
+              ;;
+            2)
+              {
+                echo "AWS no longer matches the code in \`main\`. Either someone changed a resource outside the pipeline, or a deploy only half-applied."
+                echo
+                echo "**Fix:** revert the manual change in AWS, or re-run the deploy workflow, or commit the new setting to the code."
+                echo
+                echo "<details><summary>terraform plan</summary>"
+                echo
+                echo '```'
+                head -c 55000 plan.txt # issue bodies are limited to ~65k characters
+                echo
+                echo '```'
+                echo "</details>"
+                echo
+                echo "_Last checked $(date -u '+%F %H:%M') UTC · [run]($RUN_URL)_"
+              } > issue.md
+              if [ -n "$ISSUE" ]; then
+                gh issue edit "$ISSUE" --body-file issue.md
+              else
+                gh issue create --label drift --title "Drift detected: AWS differs from the code" --body-file issue.md
+              fi
+              ;;
+            *)
+              echo "terraform plan failed:"; cat plan.txt
+              exit 1
+              ;;
+          esac
