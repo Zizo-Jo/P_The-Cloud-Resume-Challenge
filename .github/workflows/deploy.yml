@@ -30,6 +30,7 @@ jobs:
     env:
       TF_IN_AUTOMATION: "true"
       SITE_URL: https://zihao-cv.site
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }} # sensitive: where alarms are sent
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -64,4 +65,4 @@ jobs:
 
       - name: Smoke test
         working-directory: infra/envs/prod
-        run: ../../../scripts/smoke_test.sh "$SITE_URL" "$(terraform output -raw API_URL)"
+        run: ../../../scripts/smoke_test.sh "$SITE_URL" "$(terraform output -raw HEALTH_URL)"
