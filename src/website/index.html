@@ -1,645 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zihao Zhou | Cloud Engineer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #232f3e;
-            --primary-dark: #1a232f;
-            --accent: #ff9900;
-            --text-main: #333;
-            --text-light: #555;
-            --bg-body: #f8f9fa;
-            --bg-card: #ffffff;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 15px 30px rgba(0, 0, 0, 0.15);
-            --radius: 12px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zihao Zhou | Cloud &amp; DevOps Engineer</title>
+  <meta name="description" content="Zihao Zhou: Cloud & DevOps engineer in Barcelona. AWS Certified Solutions Architect. Terraform, GitHub Actions, AWS serverless and Kubernetes.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f2f5; --text: #0f172a; --muted: #5b6475;
+      --line: #e4e7ec; --accent: #ff9900; --accent-ink: #b45309; --link: #2563eb;
+      --ok: #16a34a; --warn: #d97706; --bad: #dc2626;
+      --radius: 14px; --shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0d12; --surface: #12151c; --surface-2: #181c25; --text: #e6e8ee; --muted: #9aa3b2;
+        --line: #232836; --accent: #ffb547; --accent-ink: #ffb547; --link: #7aa7ff;
+        --ok: #3fb950; --warn: #e3a33b; --bad: #f85149; --shadow: none;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
 
-        * { box-sizing: border-box; }
+    /* Navigation */
+    nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    nav .wrap { display: flex; align-items: center; gap: 20px; height: 60px; }
+    .brand { font-weight: 700; color: var(--text); letter-spacing: -.01em; }
+    .brand:hover { text-decoration: none; }
+    .nav-links { display: flex; gap: 18px; margin-left: auto; }
+    .nav-links a { color: var(--muted); font-size: .92rem; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: .88rem; font-weight: 500; cursor: pointer; }
+    .pill:hover { text-decoration: none; border-color: var(--muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .dot.ok { background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); }
+    .dot.warn { background: var(--warn); box-shadow: 0 0 0 3px color-mix(in srgb, var(--warn) 25%, transparent); }
+    .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+    .lang button { border: 0; background: none; color: var(--muted); font: inherit; font-size: .82rem; font-weight: 600; padding: 7px 11px; cursor: pointer; }
+    .lang button.active { background: var(--text); color: var(--bg); }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+    /* Hero */
+    .hero { padding: 72px 0 56px; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 40px 40px; background-position: -1px -1px; border-bottom: 1px solid var(--line); }
+    .hero .wrap { background: radial-gradient(ellipse at 30% 40%, var(--bg) 40%, transparent 75%); }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); margin-bottom: 14px; }
+    h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 10px; }
+    .role { font-size: clamp(1.15rem, 2.4vw, 1.4rem); font-weight: 600; color: var(--accent-ink); margin: 0 0 16px; }
+    .lead { max-width: 640px; color: var(--muted); font-size: 1.05rem; margin: 0 0 28px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-weight: 600; font-size: .93rem; }
+    .btn:hover { text-decoration: none; border-color: var(--muted); }
+    .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; max-width: 760px; }
+    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
+    .stat b { display: block; font-size: 1.25rem; letter-spacing: -.01em; }
+    .stat span { color: var(--muted); font-size: .85rem; }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* Sections */
+    section { padding: 56px 0 8px; }
+    h2 { font-size: 1.5rem; letter-spacing: -.02em; margin: 0 0 6px; }
+    .section-sub { color: var(--muted); margin: 0 0 24px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .card + .card { margin-top: 16px; }
+    .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-bottom: 10px; }
+    .card h3 { font-size: 1.12rem; margin: 0; }
+    .meta { color: var(--muted); font-size: .9rem; }
+    ul.points { margin: 8px 0 0; padding-left: 20px; }
+    ul.points li { margin: 6px 0; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag { font-size: .78rem; font-weight: 600; padding: 4px 9px; border-radius: 6px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+    .links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; font-size: .92rem; font-weight: 600; }
 
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-        }
+    .featured { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+    .badge { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-ink); margin-bottom: 6px; }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 0 4px; font-size: .82rem; }
+    .flow span { padding: 5px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); }
+    .flow i { color: var(--muted); font-size: .7rem; }
+    .grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-2 .card + .card { margin-top: 0; }
 
-        @keyframes bg-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+    .skill-group + .skill-group { margin-top: 18px; }
+    .skill-group h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+    .skill-group .tags { margin-top: 0; }
+    .skill-group .tag { font-size: .85rem; color: var(--text); }
 
-        header {
-            background: linear-gradient(-45deg, var(--primary), #1e2a38, #2c3e50, #232f3e);
-            background-size: 400% 400%;
-            animation: bg-shift 15s ease infinite;
-            color: white;
-            padding: 80px 20px 100px;
-            text-align: center;
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%);
-        }
+    .row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .row:first-of-type { border-top: 0; padding-top: 0; }
+    .row strong { display: block; }
+    .row > .meta, .row > a { white-space: nowrap; }
 
-        header h1 {
-            margin: 0;
-            font-size: 3.2rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-            animation: fadeUp 0.6s ease-out;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+    footer { margin-top: 64px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 
-        header p {
-            opacity: 0.95;
-            margin-top: 10px;
-            font-size: 1.15rem;
-            animation: fadeUp 0.8s ease-out;
-            font-weight: 300;
-        }
-
-        .lang-switch {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-
-        .lang-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 6px 14px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            border-radius: 20px;
-            margin-left: 5px;
-            transition: all 0.3s;
-            backdrop-filter: blur(5px);
-            font-weight: 600;
-        }
-
-        .lang-btn:hover, .lang-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .social-links {
-            margin-top: 25px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            animation: fadeUp 1s ease-out;
-        }
-
-        .social-btn {
-            color: white;
-            text-decoration: none;
-            background: rgba(255,255,255,0.1);
-            padding: 10px 24px;
-            border-radius: 30px;
-            font-size: 0.95rem;
-            transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .social-btn:hover {
-            background: white;
-            color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .counter-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-            animation: fadeUp 1s ease-out;
-        }
-
-        .counter-badge {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px 25px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            background-color: #00ff88;
-            border-radius: 50%;
-            margin-right: 12px;
-            animation: pulse-green 2s infinite;
-        }
-
-        .counter-text {
-            color: rgba(255, 255, 255, 0.9);
-            margin-right: 10px;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .counter-val {
-            font-family: 'Courier New', monospace;
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: var(--accent);
-            letter-spacing: 1px;
-        }
-
-        .container {
-            max-width: 950px;
-            margin: -60px auto 60px;
-            padding: 0 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 40px;
-            margin-bottom: 30px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeUp 1.2s ease-out;
-            border: 1px solid rgba(0,0,0,0.03);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        h2 {
-            color: var(--primary);
-            font-size: 1.6rem;
-            margin-top: 0;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
-        }
-        
-        h2 i { color: var(--accent); }
-
-        .cert-box {
-            background: #ffffff; 
-            padding: 20px 25px;
-            border-radius: 10px;
-            border: 1px solid #eee; 
-            border-left: 5px solid var(--accent); 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
-        }
-
-        .cert-box:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-            border-color: var(--accent);
-        }
-
-        .verify-link {
-            background: white;
-            color: var(--primary);
-            text-decoration: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            border: 1px solid #ddd;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .verify-link:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .skill-category { margin-bottom: 25px; }
-        .skill-category:last-child { margin-bottom: 0; }
-        
-        .skill-title {
-            display: block; 
-            margin-bottom: 10px; 
-            color: var(--text-light); 
-            font-size: 0.85rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1.2px; 
-            font-weight: 700;
-        }
-
-        .skill-tag {
-            display: inline-block;
-            background: #f1f5f9;
-            color: var(--primary);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin: 0 8px 10px 0;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .skill-tag.highlight {
-            background: rgba(255, 153, 0, 0.1);
-            color: #ff9900;
-            border: 1px solid rgba(255, 153, 0, 0.3);
-        }
-
-        .skill-tag:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .project-item {
-            margin-bottom: 25px;
-            padding: 30px;
-            border-radius: 10px;
-            background: #fff;
-            border: 1px solid #eef2f6;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-item:hover {
-            border-color: var(--accent);
-            background: #fffdf5;
-
-            transform: translateX(8px); 
-            box-shadow: -5px 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .project-item:hover::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 15%;
-            height: 70%;
-            width: 4px;
-            background: var(--accent);
-            border-radius: 0 4px 4px 0;
-        }
-        
-        .project-title { 
-            font-size: 1.2rem; 
-            font-weight: 700; 
-            margin-bottom: 8px; 
-            color: var(--primary); 
-        }
-
-        .project-desc {
-            font-size: 0.95rem;
-            color: #555;
-            margin: 0;
-            text-align: justify;
-        }
-
-
-        .lang-entry {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 25px; 
-            background: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #eee;
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .lang-entry:hover {
-            border-color: var(--accent);
-            background: #fffdf5; 
-            transform: translateX(5px); 
-        }
-
-        .lang-entry:hover::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 15%; 
-            height: 70%;
-            width: 4px;
-            background: var(--accent);
-            border-radius: 0 4px 4px 0;
-        }
-
-        .lang-name {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 1rem;
-        }
-
-        .lang-status {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #ff9900;
-            background: rgba(255, 153, 0, 0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            background: #e9ecef;
-            border-top: 1px solid #ddd;
-        }
-
-        .hidden { display: none !important; }
-
-        @media (max-width: 600px) {
-            header h1 { font-size: 2.2rem; }
-            .cert-box { flex-direction: column; align-items: flex-start; }
-            .lang-switch { top: 15px; right: 15px; }
-            .counter-wrapper { margin-top: 20px; }
-            .lang-entry { flex-direction: column; align-items: flex-start; gap: 5px; }
-        }
-    </style>
+    @media (max-width: 760px) {
+      .nav-links { display: none; }
+      .nav-actions { margin-left: auto; }
+      .hero { padding: 48px 0 40px; }
+      .row { flex-direction: column; gap: 2px; }
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <div class="lang-switch">
-            <button class="lang-btn active" onclick="switchLang('en')" id="btn-en">English</button>
-            <button class="lang-btn" onclick="switchLang('es')" id="btn-es">Español</button>
-        </div>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top">Zihao Zhou</a>
+    <div class="nav-links">
+      <a href="#experience" data-i18n="nav.experience">Experience</a>
+      <a href="#projects" data-i18n="nav.projects">Projects</a>
+      <a href="#skills" data-i18n="nav.skills">Skills</a>
+      <a href="#education" data-i18n="nav.education">Education</a>
+    </div>
+    <div class="nav-actions">
+      <a class="pill" href="/ops/" title="Live operational status of this site">
+        <span class="dot" id="status-dot"></span><span data-i18n="nav.status">Status</span>
+      </a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="btn-en" class="active" onclick="setLang('en')">EN</button>
+        <button type="button" id="btn-es" onclick="setLang('es')">ES</button>
+      </div>
+    </div>
+  </div>
+</nav>
 
-        <h1>Zihao Zhou</h1>
-        
-        <div class="lang-en">
-            <p>Telecommunications Network Engineering Student | Cloud & DevOps Enthusiast</p>
-            <p style="font-size: 0.95rem; opacity: 0.8;"><i class="fas fa-map-marker-alt"></i> Barcelona, Catalonia</p>
-        </div>
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow"><i class="fas fa-location-dot"></i> <span data-i18n="hero.location">Barcelona · currently on exchange in Taipei</span></div>
+    <h1>Zihao Zhou</h1>
+    <p class="role" data-i18n="hero.role">Cloud &amp; DevOps Engineer</p>
+    <p class="lead" data-i18n="hero.lead">I build and run cloud infrastructure as code: AWS, Terraform and GitHub Actions, with a focus on security, automation and keeping costs low. This site is one of my projects, and you can see how it is running right now.</p>
+    <div class="cta">
+      <a class="btn primary" href="/ops/"><i class="fas fa-gauge-high"></i> <span data-i18n="hero.ops">How this site runs</span></a>
+      <a class="btn" href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+      <a class="btn" href="https://www.linkedin.com/in/zihao-zhou-a7334628a" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a>
+      <a class="btn" href="mailto:zizo.xhao@gmail.com"><i class="fas fa-envelope"></i> Email</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>AWS SAA</b><span data-i18n="stat.cert">Certified Solutions Architect</span></div>
+      <div class="stat"><b>DevOps</b><span data-i18n="stat.intern">Intern at Aizon, 2026</span></div>
+      <div class="stat"><b>~$0.02<small>/mo</small></b><span data-i18n="stat.cost">to run this whole site</span></div>
+      <div class="stat" title="Live data from DynamoDB"><b id="counter">…</b><span data-i18n="stat.visits">visits, counted by a Lambda</span></div>
+    </div>
+  </div>
+</header>
 
-        <div class="lang-es hidden">
-            <p>Estudiante de Ingeniería de Redes de Telecomunicación | Entusiasta de Cloud y DevOps</p>
-            <p style="font-size: 0.95rem; opacity: 0.8;"><i class="fas fa-map-marker-alt"></i> Barcelona, Cataluña</p>
-        </div>
+<main class="wrap">
 
-        <div class="counter-wrapper">
-            <div class="counter-badge" title="Live data from DynamoDB">
-                <div class="status-dot"></div>
-                <span class="counter-text lang-en">Total Visits:</span>
-                <span class="counter-text lang-es hidden">Visitas Totales:</span>
-                <span id="counter" class="counter-val">Loading...</span>
-            </div>
-        </div>
+  <section id="experience">
+    <h2 data-i18n="exp.title">Experience</h2>
+    <p class="section-sub" data-i18n="exp.sub">Working on production cloud infrastructure in a regulated industry.</p>
+    <div class="card">
+      <div class="card-head">
+        <h3 data-i18n="exp.aizon.role">DevOps Engineer Intern · Aizon (Bigfinite Barcelona)</h3>
+        <span class="meta" data-i18n="exp.aizon.when">Mar 2026 – Aug 2026 · Barcelona</span>
+      </div>
+      <ul class="points">
+        <li data-i18n="exp.aizon.1">Provisioned and managed secure AWS infrastructure as code with OpenTofu (Terraform), Terragrunt and CloudFormation.</li>
+        <li data-i18n="exp.aizon.2">Ran infrastructure rollouts and the commissioning and decommissioning of product environments through automated CI/CD pipelines, tracking every deployment and release in Jira.</li>
+        <li data-i18n="exp.aizon.3">Maintained GitHub Actions workflows and wrote Python and Bash scripts to streamline CI/CD operations.</li>
+        <li data-i18n="exp.aizon.4">Patched vulnerabilities and audited third-party dependencies to keep infrastructure compliant with ISO 27001, SOC 2 and GAMP.</li>
+      </ul>
+      <div class="tags"><span class="tag">AWS</span><span class="tag">OpenTofu</span><span class="tag">Terragrunt</span><span class="tag">CloudFormation</span><span class="tag">GitHub Actions</span><span class="tag">Python</span><span class="tag">Bash</span></div>
+    </div>
+  </section>
 
-        <div class="social-links">
-            <a href="mailto:zizo.xhao@gmail.com" class="social-btn"><i class="fas fa-envelope"></i> Email</a>
-            <a href="https://www.linkedin.com/in/zihao-zhou-a7334628a" target="_blank" class="social-btn"><i class="fab fa-linkedin"></i> LinkedIn</a>
-            <a href="https://github.com/Zizo-Jo" target="_blank" class="social-btn"><i class="fab fa-github"></i> GitHub</a>
-        </div>
-    </header>
+  <section id="projects">
+    <h2 data-i18n="proj.title">Projects</h2>
+    <p class="section-sub" data-i18n="proj.sub">Built to be run like production, not just to work once.</p>
 
-    <div class="container">
-
-        <div class="lang-en">
-            <section class="card">
-                <h2><i class="fas fa-certificate"></i> Certifications</h2>
-                <div class="cert-box">
-                    <div>
-                        <h3 style="margin:0; font-size: 1.15rem; color:var(--primary);">AWS Certified Solutions Architect – Associate (SAA)</h3>
-                        <small style="color:#666; display:block; margin-top:4px;">Validates expertise in distributed systems on AWS.</small>
-                    </div>
-                    <a href="https://www.credly.com/badges/ec97558b-dab5-41d9-85c2-4d1158672f18/public_url" target="_blank" class="verify-link">Verify Credential <i class="fas fa-external-link-alt"></i></a>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2><i class="fas fa-code"></i> Technical Skills</h2>
-                <div class="skill-category">
-                    <span class="skill-title">Cloud & DevOps (SAA Certified)</span>
-                    <span class="skill-tag highlight">AWS Solutions Architect</span>
-                    <span class="skill-tag">EC2 & VPC</span>
-                    <span class="skill-tag">S3 & CloudFront</span>
-                    <span class="skill-tag">Lambda & API Gateway</span>
-                    <span class="skill-tag">DynamoDB</span>
-                    <span class="skill-tag">ECS (Fargate) & ECR</span>
-                    <span class="skill-tag">IAM & Route53</span>
-                    <span class="skill-tag">Terraform (IaC)</span>
-                    <span class="skill-tag">Kubernetes</span>
-                    <span class="skill-tag">Docker</span>
-                    <span class="skill-tag">GitHub Actions</span>
-                </div>
-                <div class="skill-category">
-                    <span class="skill-title">Development</span>
-                    <span class="skill-tag">Python (Boto3, Flask)</span>
-                    <span class="skill-tag">Bash Scripting</span>
-                    <span class="skill-tag">C/C++</span>
-                    <span class="skill-tag">Java</span>
-                    <span class="skill-tag">SQL (MySQL)</span>
-                    <span class="skill-tag">Git</span>
-                </div>
-                <div class="skill-category">
-                    <span class="skill-title">Network & Security</span>
-                    <span class="skill-tag">Wireshark</span>
-                    <span class="skill-tag">OpenVPN</span>
-                    <span class="skill-tag">PKI & TLS</span>
-                    <span class="skill-tag">TCP/IP & DNS</span>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2><i class="fas fa-laptop-code"></i> Key Projects</h2>
-                <div class="project-item">
-                    <div class="project-title">The Cloud Resume Challenge (AWS & Terraform)</div>
-                    <p class="project-desc">Designed a secure serverless architecture on AWS. Directed primary engineering efforts toward backend logic and infrastructure automation using <strong>Terraform</strong> and <strong>Python</strong>. Orchestrated <strong>S3</strong> and <strong>CloudFront</strong> integrated with <strong>Cloudflare</strong> for global content delivery and edge security. Implemented a high-concurrency atomic visitor counter using <strong>API Gateway</strong>, <strong>Lambda</strong>, and <strong>DynamoDB</strong>, ensuring strict HTTPS encryption via <strong>ACM</strong> and prioritizing IaC best practices.</p>
-                </div>
-                <div class="project-item">
-                    <div class="project-title">Serverless CI/CD Automation on AWS</div>
-                    <p class="project-desc">Engineered a fully automated deployment pipeline for a containerized Python Flask application using <strong>Docker</strong> and <strong>AWS ECS Fargate</strong>. Implemented <strong>Infrastructure as Code (IaC)</strong> using Terraform to provision VPC, ECR, and IAM roles. Configured <strong>GitHub Actions</strong> to build, tag, and push images upon code commit, achieving zero-downtime rolling updates in the production environment.</p>
-                </div>
-                <div class="project-item">
-                    <div class="project-title">End-to-End Kubernetes Application Management</div>
-                    <p class="project-desc">Managed the complete lifecycle of a Flask REST API on <strong>Kubernetes</strong>. Modified the application to be "Kubernetes-aware" by dynamically displaying pod IP addresses. Authored <strong>YAML manifests</strong> for Deployment and Service resources, deployed to a Minikube cluster, and scaled to multiple replicas. Integrated a stateful MongoDB database within the cluster.</p>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2><i class="fas fa-language"></i> Languages</h2>
-                <div class="lang-list">
-                    <div class="lang-entry">
-                        <span class="lang-name">English</span>
-                        <span class="lang-status">Advanced</span>
-                    </div>
-                    <div class="lang-entry">
-                        <span class="lang-name">Spanish</span>
-                        <span class="lang-status">Advanced</span>
-                    </div>
-                    <div class="lang-entry">
-                        <span class="lang-name">Chinese</span>
-                        <span class="lang-status">Native</span>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <div class="lang-es hidden">
-            <section class="card">
-                <h2><i class="fas fa-certificate"></i> Certificaciones</h2>
-                <div class="cert-box">
-                    <div>
-                        <h3 style="margin:0; font-size: 1.15rem; color:var(--primary);">AWS Certified Solutions Architect – Associate (SAA)</h3>
-                        <small style="color:#666; display:block; margin-top:4px;">Valida experiencia en diseño de sistemas distribuidos en AWS.</small>
-                    </div>
-                    <a href="https://www.credly.com/badges/ec97558b-dab5-41d9-85c2-4d1158672f18/public_url" target="_blank" class="verify-link">Verificar <i class="fas fa-external-link-alt"></i></a>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2><i class="fas fa-code"></i> Habilidades Técnicas</h2>
-                <div class="skill-category">
-                    <span class="skill-title">Cloud y DevOps (Certificado SAA)</span>
-                    <span class="skill-tag highlight">AWS Solutions Architect</span>
-                    <span class="skill-tag">EC2 & VPC</span>
-                    <span class="skill-tag">S3 & CloudFront</span>
-                    <span class="skill-tag">Lambda & API Gateway</span>
-                    <span class="skill-tag">DynamoDB</span>
-                    <span class="skill-tag">ECS (Fargate) & ECR</span>
-                    <span class="skill-tag">IAM & Route53</span>
-                    <span class="skill-tag">Terraform (IaC)</span>
-                    <span class="skill-tag">Kubernetes</span>
-                    <span class="skill-tag">Docker</span>
-                    <span class="skill-tag">GitHub Actions</span>
-                </div>
-                <div class="skill-category">
-                    <span class="skill-title">Desarrollo</span>
-                    <span class="skill-tag">Python (Boto3, Flask)</span>
-                    <span class="skill-tag">Bash Scripting</span>
-                    <span class="skill-tag">C/C++</span>
-                    <span class="skill-tag">Java</span>
-                    <span class="skill-tag">SQL (MySQL)</span>
-                    <span class="skill-tag">Git</span>
-                </div>
-                <div class="skill-category">
-                    <span class="skill-title">Redes y Seguridad</span>
-                    <span class="skill-tag">Wireshark</span>
-                    <span class="skill-tag">OpenVPN</span>
-                    <span class="skill-tag">PKI & TLS</span>
-                    <span class="skill-tag">TCP/IP & DNS</span>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2><i class="fas fa-laptop-code"></i> Proyectos Destacados</h2>
-                <div class="project-item">
-                    <div class="project-title">The Cloud Resume Challenge (AWS y Terraform)</div>
-                    <p class="project-desc">Diseñé una arquitectura serverless segura en AWS. Dirigí mis principales esfuerzos de ingeniería hacia la lógica backend y la automatización de infraestructura con <strong>Terraform</strong> y <strong>Python</strong>. Orquesté <strong>S3</strong> y <strong>CloudFront</strong> integrados con <strong>Cloudflare</strong> para la entrega global de contenido y seguridad perimetral. Implementé un contador de visitas atómico de alta concurrencia utilizando <strong>API Gateway</strong>, <strong>Lambda</strong> y <strong>DynamoDB</strong>, garantizando encriptación HTTPS estricta vía <strong>ACM</strong> y priorizando las mejores prácticas de IaC.</p>
-                </div>
-                <div class="project-item">
-                    <div class="project-title">Automatización CI/CD Serverless en AWS</div>
-                    <p class="project-desc">Diseñé un pipeline de despliegue totalmente automatizado para una aplicación Python Flask contenerizada usando <strong>Docker</strong> y <strong>AWS ECS Fargate</strong>. Implementé Infraestructura como Código (IaC) con Terraform para aprovisionar VPC, ECR y roles IAM. Configuré <strong>GitHub Actions</strong> para construir y desplegar imágenes automáticamente, logrando actualizaciones sin tiempo de inactividad (Zero-downtime).</p>
-                </div>
-                <div class="project-item">
-                    <div class="project-title">Gestión de Aplicaciones Kubernetes End-to-End</div>
-                    <p class="project-desc">Gestioné el ciclo de vida completo de una API REST Flask en <strong>Kubernetes</strong>. Modifiqué la aplicación para ser "consciente de Kubernetes" mostrando dinámicamente las IPs de los pods. Creé <strong>manifiestos YAML</strong> para Deployment y Service, desplegué en Minikube y escalé a múltiples réplicas. Integré una base de datos MongoDB stateful en el clúster.</p>
-                </div>
-            </section>
-
-            <section class="card">
-                <h2><i class="fas fa-language"></i> Idiomas</h2>
-                <div class="lang-list">
-                    <div class="lang-entry">
-                        <span class="lang-name">Inglés</span>
-                        <span class="lang-status">Avanzado</span>
-                    </div>
-                    <div class="lang-entry">
-                        <span class="lang-name">Español</span>
-                        <span class="lang-status">Avanzado</span>
-                    </div>
-                    <div class="lang-entry">
-                        <span class="lang-name">Chino</span>
-                        <span class="lang-status">Nativo</span>
-                    </div>
-                </div>
-            </section>
-        </div>
+    <div class="card featured">
+      <span class="badge" data-i18n="proj.site.badge">This website</span>
+      <div class="card-head">
+        <h3 data-i18n="proj.site.name">Production-grade serverless platform on AWS</h3>
+        <span class="meta">Terraform · GitHub Actions · AWS</span>
+      </div>
+      <div class="flow" aria-label="Architecture">
+        <span>Cloudflare</span><i class="fas fa-arrow-right"></i><span>CloudFront</span><i class="fas fa-arrow-right"></i><span>S3</span>
+        <span style="margin-left:10px">API Gateway</span><i class="fas fa-arrow-right"></i><span>Lambda</span><i class="fas fa-arrow-right"></i><span>DynamoDB</span>
+      </div>
+      <ul class="points">
+        <li data-i18n="proj.site.1">Every change goes through a pull request: Terraform fmt, validate, tflint, Checkov security scanning and unit tests, with the Terraform plan posted as a comment before merging.</li>
+        <li data-i18n="proj.site.2">Merging deploys automatically with short-lived OIDC credentials. No AWS keys are stored anywhere, and the pipeline cannot change its own permissions.</li>
+        <li data-i18n="proj.site.3">Least privilege down to a single database item, CORS locked to this domain, throttling, security headers and point-in-time backups.</li>
+        <li data-i18n="proj.site.4">Alarms, an external uptime check every 5 minutes, a nightly drift check that opens a GitHub issue, and a runbook for every alert.</li>
+        <li data-i18n="proj.site.5">Recovered a lost Terraform state by importing the live resources with zero downtime. Runs inside the AWS free tier, at about two cents a month.</li>
+      </ul>
+      <div class="tags"><span class="tag">Terraform</span><span class="tag">GitHub Actions</span><span class="tag">OIDC</span><span class="tag">Lambda</span><span class="tag">DynamoDB</span><span class="tag">CloudFront</span><span class="tag">CloudWatch</span><span class="tag">Checkov</span><span class="tag">pytest</span></div>
+      <div class="links">
+        <a href="https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge" target="_blank" rel="noopener"><i class="fab fa-github"></i> <span data-i18n="proj.code">Source code</span></a>
+        <a href="/ops/"><i class="fas fa-gauge-high"></i> <span data-i18n="proj.site.status">Live status</span></a>
+      </div>
     </div>
 
-    <footer>
-        <p>© 2026 Zihao Zhou. Infrastructure automated with Terraform on AWS.</p>
-    </footer>
+    <div class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-head"><h3 data-i18n="proj.ecs.name">Containerized app on ECS Fargate</h3></div>
+        <ul class="points">
+          <li data-i18n="proj.ecs.1">CI/CD pipeline in GitHub Actions that builds multi-stage Docker images, pushes them to ECR and deploys a Flask app to ECS Fargate with zero-downtime rolling updates.</li>
+        </ul>
+        <div class="tags"><span class="tag">Docker</span><span class="tag">ECR</span><span class="tag">ECS Fargate</span><span class="tag">Flask</span></div>
+        <div class="links"><a href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 data-i18n="proj.k8s.name">Kubernetes application management</h3></div>
+        <ul class="points">
+          <li data-i18n="proj.k8s.1">YAML manifests to deploy, scale and manage a containerized Flask REST API with a MongoDB database on Minikube.</li>
+        </ul>
+        <div class="tags"><span class="tag">Kubernetes</span><span class="tag">Minikube</span><span class="tag">MongoDB</span></div>
+        <div class="links"><a href="https://github.com/Zizo-Jo" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a></div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        function switchLang(lang) {
-            const enElements = document.querySelectorAll('.lang-en');
-            const esElements = document.querySelectorAll('.lang-es');
-            const btnEn = document.getElementById('btn-en');
-            const btnEs = document.getElementById('btn-es');
+  <section id="skills">
+    <h2 data-i18n="skills.title">Skills</h2>
+    <p class="section-sub" data-i18n="skills.sub">What I use day to day.</p>
+    <div class="card">
+      <div class="skill-group">
+        <h3 data-i18n="skills.cloud">Cloud &amp; IaC</h3>
+        <div class="tags"><span class="tag">AWS: EC2, S3, Lambda, API Gateway, DynamoDB, ECS, ECR, VPC, IAM, Route 53</span><span class="tag">Terraform / OpenTofu</span><span class="tag">Terragrunt</span><span class="tag">CloudFormation</span></div>
+      </div>
+      <div class="skill-group">
+        <h3 data-i18n="skills.cicd">CI/CD &amp; operations</h3>
+        <div class="tags"><span class="tag">GitHub Actions</span><span class="tag">Docker</span><span class="tag">Kubernetes</span><span class="tag">Git</span><span class="tag">Linux (Ubuntu)</span><span class="tag">CloudWatch</span><span class="tag">Checkov</span></div>
+      </div>
+      <div class="skill-group">
+        <h3 data-i18n="skills.dev">Programming &amp; scripting</h3>
+        <div class="tags"><span class="tag">Python (Boto3, Flask)</span><span class="tag">Bash / Zsh</span><span class="tag">SQL (MySQL)</span><span class="tag">C / C++</span><span class="tag">Java</span></div>
+      </div>
+    </div>
+  </section>
 
-            if (lang === 'en') {
-                enElements.forEach(el => el.classList.remove('hidden'));
-                esElements.forEach(el => el.classList.add('hidden'));
-                btnEn.classList.add('active');
-                btnEs.classList.remove('active');
-            } else {
-                enElements.forEach(el => el.classList.add('hidden'));
-                esElements.forEach(el => el.classList.remove('hidden'));
-                btnEn.classList.remove('active');
-                btnEs.classList.add('active');
-            }
-        }
+  <section id="education">
+    <h2 data-i18n="edu.title">Education &amp; certifications</h2>
+    <p class="section-sub" data-i18n="edu.sub">Studying telecom networks in Barcelona and computer science in Taipei.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="row">
+          <div><strong data-i18n="edu.upf">Telecommunications Network Engineering</strong><span class="meta" data-i18n="edu.upf.where">Universitat Pompeu Fabra · taught in English</span></div>
+          <span class="meta" data-i18n="edu.upf.when">2023 – present</span>
+        </div>
+        <div class="row">
+          <div><strong data-i18n="edu.ntu">Computer Science &amp; Information Engineering</strong><span class="meta" data-i18n="edu.ntu.where">National Taiwan University · exchange</span></div>
+          <span class="meta" data-i18n="edu.ntu.when">2026 – present</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div><strong>AWS Certified Solutions Architect – Associate</strong><span class="meta">Amazon Web Services</span></div>
+          <a href="https://www.credly.com/badges/ec97558b-dab5-41d9-85c2-4d1158672f18/public_url" target="_blank" rel="noopener" data-i18n="edu.verify">Verify</a>
+        </div>
+        <div class="row">
+          <div><strong data-i18n="lang.title">Languages</strong><span class="meta" data-i18n="lang.list">Chinese (native) · English (C1, professional) · Spanish (working proficiency)</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        const apiUrl = "https://ubnjbwuf9e.execute-api.us-east-1.amazonaws.com/count"; 
-        const counterEl = document.getElementById('counter');
-        const dotEl = document.querySelector('.status-dot');
-        
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => { counterEl.innerText = data.count; })
-            .catch(error => {
-                counterEl.innerText = "Offline";
-                dotEl.style.backgroundColor = '#ff4444';
-            });
-    </script>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Zihao Zhou</span>
+    <span data-i18n-html="footer.built">Deployed by <a href="https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge" target="_blank" rel="noopener">GitHub Actions + Terraform</a> on AWS · <a href="/ops/">live status</a></span>
+  </div>
+</footer>
+
+<script>
+  // --- Spanish translations (English is the text already in the page) ---
+  var ES = {
+    "nav.experience": "Experiencia", "nav.projects": "Proyectos", "nav.skills": "Habilidades", "nav.education": "Formación", "nav.status": "Estado",
+    "hero.location": "Barcelona · ahora de intercambio en Taipéi",
+    "hero.role": "Ingeniero Cloud y DevOps",
+    "hero.lead": "Construyo y opero infraestructura cloud como código: AWS, Terraform y GitHub Actions, con foco en seguridad, automatización y costes bajos. Esta web es uno de mis proyectos, y puedes ver cómo está funcionando ahora mismo.",
+    "hero.ops": "Cómo funciona esta web",
+    "stat.cert": "Solutions Architect certificado", "stat.intern": "Prácticas en Aizon, 2026", "stat.cost": "lo que cuesta toda esta web", "stat.visits": "visitas, contadas por una Lambda",
+    "exp.title": "Experiencia", "exp.sub": "Infraestructura cloud en producción en un sector regulado.",
+    "exp.aizon.role": "DevOps Engineer en prácticas · Aizon (Bigfinite Barcelona)",
+    "exp.aizon.when": "mar 2026 – ago 2026 · Barcelona",
+    "exp.aizon.1": "Aprovisioné y gestioné infraestructura segura en AWS como código con OpenTofu (Terraform), Terragrunt y CloudFormation.",
+    "exp.aizon.2": "Ejecuté despliegues de infraestructura y la puesta en marcha y retirada de entornos de producto mediante pipelines CI/CD automatizados, registrando cada despliegue y release en Jira.",
+    "exp.aizon.3": "Mantuve workflows de GitHub Actions y escribí scripts en Python y Bash para agilizar las operaciones de CI/CD.",
+    "exp.aizon.4": "Apliqué parches de vulnerabilidades y audité dependencias de terceros para cumplir ISO 27001, SOC 2 y GAMP.",
+    "proj.title": "Proyectos", "proj.sub": "Pensados para operar como en producción, no solo para funcionar una vez.",
+    "proj.site.badge": "Esta web", "proj.site.name": "Plataforma serverless en AWS con prácticas de producción",
+    "proj.site.1": "Cada cambio pasa por un pull request: Terraform fmt, validate, tflint, análisis de seguridad con Checkov y tests unitarios, con el plan de Terraform publicado como comentario antes de fusionar.",
+    "proj.site.2": "Al fusionar se despliega automáticamente con credenciales OIDC de corta duración. No hay claves de AWS guardadas en ningún sitio y el pipeline no puede cambiar sus propios permisos.",
+    "proj.site.3": "Mínimo privilegio hasta un único elemento de la base de datos, CORS limitado a este dominio, throttling, cabeceras de seguridad y copias de seguridad point-in-time.",
+    "proj.site.4": "Alarmas, una comprobación externa de disponibilidad cada 5 minutos, una detección de drift cada noche que abre un issue en GitHub y un runbook para cada alerta.",
+    "proj.site.5": "Recuperé un estado de Terraform perdido importando los recursos en producción sin tiempo de inactividad. Funciona dentro de la capa gratuita de AWS, por unos dos céntimos al mes.",
+    "proj.code": "Código fuente", "proj.site.status": "Estado en vivo",
+    "proj.ecs.name": "Aplicación en contenedores en ECS Fargate",
+    "proj.ecs.1": "Pipeline CI/CD en GitHub Actions que construye imágenes Docker multi-stage, las sube a ECR y despliega una app Flask en ECS Fargate con actualizaciones rolling sin interrupción.",
+    "proj.k8s.name": "Gestión de aplicaciones en Kubernetes",
+    "proj.k8s.1": "Manifiestos YAML para desplegar, escalar y gestionar una API REST en Flask con base de datos MongoDB en Minikube.",
+    "skills.title": "Habilidades", "skills.sub": "Lo que uso en el día a día.", "skills.cloud": "Cloud e IaC", "skills.cicd": "CI/CD y operaciones", "skills.dev": "Programación y scripting",
+    "edu.title": "Formación y certificaciones", "edu.sub": "Estudio redes de telecomunicación en Barcelona e informática en Taipéi.",
+    "edu.upf": "Ingeniería de Redes de Telecomunicación", "edu.upf.where": "Universitat Pompeu Fabra · en inglés", "edu.upf.when": "2023 – actualidad",
+    "edu.ntu": "Ciencias de la Computación e Ingeniería de la Información", "edu.ntu.where": "Universidad Nacional de Taiwán · intercambio", "edu.ntu.when": "2026 – actualidad",
+    "edu.verify": "Verificar",
+    "lang.title": "Idiomas", "lang.list": "Chino (nativo) · Inglés (C1, profesional) · Español (nivel de trabajo)",
+    "footer.built": "Desplegada con <a href=\"https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge\" target=\"_blank\" rel=\"noopener\">GitHub Actions + Terraform</a> en AWS · <a href=\"/ops/\">estado en vivo</a>"
+  };
+
+  var EN = {};
+  document.querySelectorAll("[data-i18n]").forEach(function (el) { EN[el.dataset.i18n] = el.textContent; });
+  document.querySelectorAll("[data-i18n-html]").forEach(function (el) { EN[el.dataset.i18nHtml] = el.innerHTML; });
+
+  function setLang(lang) {
+    var dict = lang === "es" ? ES : EN;
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var t = dict[el.dataset.i18n]; if (t) el.textContent = t;
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      var t = dict[el.dataset.i18nHtml]; if (t) el.innerHTML = t;
+    });
+    document.documentElement.lang = lang;
+    document.getElementById("btn-en").classList.toggle("active", lang === "en");
+    document.getElementById("btn-es").classList.toggle("active", lang === "es");
+    try { localStorage.setItem("lang", lang); } catch (e) {}
+  }
+  try { if (localStorage.getItem("lang") === "es") setLang("es"); } catch (e) {}
+
+  // --- Visitor counter: each page view adds one (atomic update in DynamoDB) ---
+  fetch("https://ubnjbwuf9e.execute-api.us-east-1.amazonaws.com/count")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { document.getElementById("counter").textContent = Number(d.count).toLocaleString(); })
+    .catch(function () { document.getElementById("counter").textContent = "–"; });
+
+  // --- Status light: green if the last deploy succeeded and there is no drift ---
+  Promise.all(["deploy", "drift"].map(function (f) {
+    return fetch("/ops/" + f + ".json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  })).then(function (res) {
+    var deploy = res[0], drift = res[1];
+    if (!deploy && !drift) return;
+    var healthy = (!deploy || deploy.result === "success") && (!drift || drift.drift === false);
+    document.getElementById("status-dot").className = "dot " + (healthy ? "ok" : "warn");
+  });
+</script>
 </body>
 </html>
