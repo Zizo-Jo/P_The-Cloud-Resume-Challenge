@@ -64,4 +64,4 @@ jobs:
 
       - name: Smoke test
         working-directory: infra/envs/prod
-        run: ../../../scripts/smoke_test.sh "$SITE_URL" "$(terraform output -raw API_URL)"
+        run: ../../../scripts/smoke_test.sh "$SITE_URL" "$(terraform output -raw HEALTH_URL)"

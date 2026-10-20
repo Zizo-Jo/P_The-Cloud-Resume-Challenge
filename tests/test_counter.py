@@ -72,3 +72,31 @@ def test_database_error_returns_generic_500(aws):
     # Internal details (table name, AWS error text) must not reach the caller.
     assert json.loads(response["body"]) == {"error": "Internal server error"}
     assert TABLE not in response["body"]
+
+
+def test_health_reports_ok_without_changing_the_counter(aws):
+    func = load_func()
+    func.lambda_handler({}, None)  # one real visit -> count is 1
+
+    health = [func.lambda_handler({"routeKey": "GET /health"}, None) for _ in range(3)]
+    after = json.loads(func.lambda_handler({}, None)["body"])["count"]
+
+    assert all(r["statusCode"] == 200 for r in health)
+    assert json.loads(health[0]["body"]) == {"status": "ok", "count": 1}
+    assert after == 2  # health calls did not add visits
+
+
+def test_health_on_empty_table_reports_zero(aws):
+    response = load_func().lambda_handler({"routeKey": "GET /health"}, None)
+
+    assert json.loads(response["body"]) == {"status": "ok", "count": 0}
+
+
+def test_health_returns_503_when_database_is_down(aws):
+    func = load_func()
+    boto3.client("dynamodb").delete_table(TableName=TABLE)
+
+    response = func.lambda_handler({"routeKey": "GET /health"}, None)
+
+    assert response["statusCode"] == 503
+    assert json.loads(response["body"]) == {"status": "unavailable"}
