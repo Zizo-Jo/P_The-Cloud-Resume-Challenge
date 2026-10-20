@@ -77,16 +77,20 @@ resource "aws_s3_object" "html" {
   source       = var.html_source
   content_type = "text/html"
   etag         = filemd5(var.html_source)
+  # Without this header browsers guess how long to cache the page, which can
+  # be days for a file that rarely changes. 5 minutes keeps updates visible.
+  cache_control = "max-age=300"
 }
 
 # Public status page. The JSON files it reads (ops/*.json) are written by the
 # pipeline and the ops-publisher Lambda, not by Terraform.
 resource "aws_s3_object" "ops_html" {
-  bucket       = aws_s3_bucket.b.id
-  key          = "ops/index.html"
-  source       = var.ops_html_source
-  content_type = "text/html"
-  etag         = filemd5(var.ops_html_source)
+  bucket        = aws_s3_bucket.b.id
+  key           = "ops/index.html"
+  source        = var.ops_html_source
+  content_type  = "text/html"
+  etag          = filemd5(var.ops_html_source)
+  cache_control = "max-age=300"
 }
 
 # Serves /ops and /ops/ from /ops/index.html (default_root_object only covers "/").
