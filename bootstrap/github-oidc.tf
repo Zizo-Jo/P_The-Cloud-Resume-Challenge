@@ -233,6 +233,17 @@ data "aws_iam_policy_document" "apply_permissions" {
     ]
   }
 
+  # The policy ID is generated, so it is matched by type.
+  statement {
+    sid = "WriteResponseHeadersPolicy"
+    actions = [
+      "cloudfront:CreateResponseHeadersPolicy",
+      "cloudfront:UpdateResponseHeadersPolicy",
+      "cloudfront:DeleteResponseHeadersPolicy",
+    ]
+    resources = ["arn:aws:cloudfront::${local.account_id}:response-headers-policy/*"]
+  }
+
   statement {
     sid = "WriteCertificate"
     actions = [

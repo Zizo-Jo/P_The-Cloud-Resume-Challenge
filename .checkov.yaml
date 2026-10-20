@@ -28,8 +28,5 @@ skip-check:
 
   # --- TODO Phase 2: real improvements, remove the line when fixed ---
   - CKV_AWS_76 # API Gateway access logging
-  - CKV2_AWS_32 # CloudFront response headers policy (HSTS etc.)
-  - CKV_AWS_21 # S3 versioning on the website bucket
-  - CKV2_AWS_61 # S3 lifecycle rule (expire old versions)
   - CKV_AWS_28 # DynamoDB point-in-time recovery
   - CKV_AWS_50 # Lambda X-Ray tracing
