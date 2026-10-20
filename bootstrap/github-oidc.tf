@@ -206,9 +206,14 @@ data "aws_iam_policy_document" "plan_permissions" {
   }
 
   statement {
-    sid       = "ReadAlertSubscription"
-    actions   = ["sns:GetSubscriptionAttributes"]
-    resources = ["arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}:*"]
+    sid     = "ReadAlertSubscription"
+    actions = ["sns:GetSubscriptionAttributes"]
+    # While an email subscription is still pending confirmation, AWS checks
+    # this action against the topic ARN instead of the subscription ARN.
+    resources = [
+      "arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}",
+      "arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}:*",
+    ]
   }
 
   # DescribeAlarms does not support resource-level permissions.
@@ -384,9 +389,13 @@ data "aws_iam_policy_document" "apply_permissions" {
   }
 
   statement {
-    sid       = "WriteAlertSubscription"
-    actions   = ["sns:Unsubscribe", "sns:SetSubscriptionAttributes"]
-    resources = ["arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}:*"]
+    sid     = "WriteAlertSubscription"
+    actions = ["sns:Unsubscribe", "sns:SetSubscriptionAttributes"]
+    # Same as above: a pending subscription is authorised against the topic.
+    resources = [
+      "arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}",
+      "arn:aws:sns:us-east-1:${local.account_id}:${local.sns_topic}:*",
+    ]
   }
 
   statement {
