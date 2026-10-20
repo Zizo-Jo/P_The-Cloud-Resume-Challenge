@@ -14,6 +14,33 @@ resource "aws_s3_bucket_public_access_block" "pub" {
   restrict_public_buckets = true
 }
 
+# Keep every version of index.html so a bad deploy can be rolled back, and
+# let old versions expire so they do not accumulate cost.
+resource "aws_s3_bucket_versioning" "v" {
+  bucket = aws_s3_bucket.b.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "lc" {
+  bucket     = aws_s3_bucket.b.id
+  depends_on = [aws_s3_bucket_versioning.v]
+
+  rule {
+    id     = "expire-old-versions"
+    status = "Enabled"
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
 resource "aws_cloudfront_origin_access_control" "oac" {
   name                              = "example-oac"
   description                       = "OAC for S3"
@@ -64,6 +91,36 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
+# Browser-side protections sent with every response.
+resource "aws_cloudfront_response_headers_policy" "security" {
+  name = "security-headers"
+
+  security_headers_config {
+    strict_transport_security {
+      access_control_max_age_sec = 31536000 # 1 year: always use HTTPS
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+    content_type_options {
+      override = true # nosniff
+    }
+    frame_options {
+      frame_option = "DENY" # nobody may embed the site in a frame
+      override     = true
+    }
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+  }
+}
+
+# AWS-managed cache policy: gzip/brotli, 1 day default TTL, no cookies or query strings.
+data "aws_cloudfront_cache_policy" "optimized" {
+  name = "Managed-CachingOptimized"
+}
+
 # CloudFront Distribution Resource
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
@@ -78,18 +135,13 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-Origin"
-    viewer_protocol_policy = "redirect-to-https"
-    forwarded_values {
-      query_string = false
-      cookies { forward = "none" }
-    }
-
-    min_ttl     = 0
-    default_ttl = 0
-    max_ttl     = 0
+    allowed_methods            = ["GET", "HEAD"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "S3-Origin"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    cache_policy_id            = data.aws_cloudfront_cache_policy.optimized.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
   }
 
   restrictions {
