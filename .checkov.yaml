@@ -27,6 +27,3 @@ skip-check:
   - CKV_AWS_338 # Log retention of 1 year: compliance rule; 30 days is enough for a visitor counter
 
   # --- TODO Phase 2: real improvements, remove the line when fixed ---
-  - CKV_AWS_76 # API Gateway access logging
-  - CKV_AWS_28 # DynamoDB point-in-time recovery
-  - CKV_AWS_50 # Lambda X-Ray tracing

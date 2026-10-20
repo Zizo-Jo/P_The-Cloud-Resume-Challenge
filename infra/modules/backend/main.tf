@@ -3,6 +3,11 @@ resource "aws_dynamodb_table" "t" {
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
 
+  # Restore the table to any second in the last 35 days.
+  point_in_time_recovery {
+    enabled = true
+  }
+
   lifecycle {
     prevent_destroy = true
   }
@@ -37,6 +42,15 @@ resource "aws_cloudwatch_log_group" "lambda" {
   retention_in_days = 30
 }
 
+# One log line per API request (route, status, latency). Visitor IPs are left
+# out on purpose: they are personal data and nothing here needs them.
+# The /aws/vendedlogs/ prefix is pre-authorised for log delivery, so no
+# account-wide logs resource policy has to be written.
+resource "aws_cloudwatch_log_group" "api" {
+  name              = "/aws/vendedlogs/apigateway/api-${var.env}"
+  retention_in_days = 30
+}
+
 resource "aws_iam_role_policy" "policy" {
   name = "policy_${var.env}"
   role = aws_iam_role.iam.id
@@ -56,6 +70,12 @@ resource "aws_iam_role_policy" "policy" {
         Effect   = "Allow",
         Action   = ["logs:CreateLogStream", "logs:PutLogEvents"],
         Resource = "${aws_cloudwatch_log_group.lambda.arn}:*"
+      },
+      {
+        # X-Ray does not support resource-level permissions.
+        Effect   = "Allow",
+        Action   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"],
+        Resource = "*"
     }]
   })
 }
@@ -69,6 +89,9 @@ resource "aws_lambda_function" "func" {
   source_code_hash = data.archive_file.zip.output_base64sha256
   environment {
     variables = { TABLE_NAME = aws_dynamodb_table.t.name }
+  }
+  tracing_config {
+    mode = "Active"
   }
   depends_on = [aws_cloudwatch_log_group.lambda]
 }
@@ -87,6 +110,19 @@ resource "aws_apigatewayv2_stage" "stage" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api.arn
+    format = jsonencode({
+      requestId          = "$context.requestId"
+      requestTime        = "$context.requestTime"
+      routeKey           = "$context.routeKey"
+      status             = "$context.status"
+      responseLatency    = "$context.responseLatency"
+      integrationStatus  = "$context.integrationStatus"
+      integrationLatency = "$context.integrationLatency"
+    })
+  }
 
   # Caps abuse and cost. A Lambda reserved-concurrency cap is not possible
   # here: the account limit is 10 and AWS requires 10 to stay unreserved.

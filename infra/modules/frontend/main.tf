@@ -42,7 +42,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lc" {
 }
 
 resource "aws_cloudfront_origin_access_control" "oac" {
-  name                              = "example-oac"
+  name                              = "zihao-resume-oac"
   description                       = "OAC for S3"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"

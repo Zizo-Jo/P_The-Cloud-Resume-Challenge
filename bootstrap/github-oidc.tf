@@ -157,6 +157,12 @@ data "aws_iam_policy_document" "plan_permissions" {
     resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.function_name}"]
   }
 
+  statement {
+    sid       = "ReadApiLogGroup"
+    actions   = ["logs:ListTagsForResource", "logs:ListTagsLogGroup"]
+    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/vendedlogs/apigateway/api-dev"]
+  }
+
   # DescribeLogGroups does not support resource-level permissions.
   statement {
     sid       = "DescribeLogGroups"
@@ -278,6 +284,35 @@ data "aws_iam_policy_document" "apply_permissions" {
       "logs:UntagResource",
     ]
     resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/${local.function_name}"]
+  }
+
+  statement {
+    sid = "WriteApiLogGroup"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:DeleteLogGroup",
+      "logs:PutRetentionPolicy",
+      "logs:DeleteRetentionPolicy",
+      "logs:TagResource",
+      "logs:UntagResource",
+    ]
+    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/vendedlogs/apigateway/api-dev"]
+  }
+
+  # API Gateway sets up access logging through CloudWatch log deliveries,
+  # which cannot be scoped to a resource. PutResourcePolicy is deliberately
+  # NOT granted: the /aws/vendedlogs/ prefix makes it unnecessary.
+  statement {
+    sid = "ManageLogDeliveries"
+    actions = [
+      "logs:CreateLogDelivery",
+      "logs:GetLogDelivery",
+      "logs:UpdateLogDelivery",
+      "logs:DeleteLogDelivery",
+      "logs:ListLogDeliveries",
+      "logs:DescribeResourcePolicies",
+    ]
+    resources = ["*"]
   }
 
   statement {
