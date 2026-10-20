@@ -22,6 +22,8 @@ skip-check:
   - CKV_AWS_374 # CloudFront geo restriction: visitors from everywhere are welcome
   - CKV_AWS_144 # S3 cross-region replication: overkill for one HTML file
   - CKV2_AWS_62 # S3 event notifications: nothing consumes them
+  - CKV_AWS_158 # Log group KMS customer-managed key: ~$1/month; logs are already encrypted with AWS-owned keys
+  - CKV_AWS_338 # Log retention of 1 year: compliance rule; 30 days is enough for a visitor counter
 
   # --- TODO Phase 2: real improvements, remove the line when fixed ---
   - CKV_AWS_76 # API Gateway access logging
