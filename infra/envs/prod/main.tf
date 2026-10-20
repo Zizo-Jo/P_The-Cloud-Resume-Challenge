@@ -39,4 +39,7 @@ module "monitoring" {
   uptime_source        = "../../../src/uptime/check.py"
   site_url             = "https://zihao-cv.site"
   health_url           = module.backend.health_endpoint
+  ops_source           = "../../../src/ops/publisher.py"
+  ops_bucket           = var.bucket_name
+  budget_name          = "My Zero-Spend Budget"
 }

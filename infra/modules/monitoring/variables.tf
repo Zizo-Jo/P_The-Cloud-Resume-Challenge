@@ -29,3 +29,17 @@ variable "site_url" {
 variable "health_url" {
   type = string
 }
+
+variable "ops_source" {
+  type        = string
+  description = "Path to the ops-publisher Lambda source file."
+}
+
+variable "ops_bucket" {
+  type        = string
+  description = "Website bucket that holds the /ops status files."
+}
+
+variable "budget_name" {
+  type = string
+}

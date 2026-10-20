@@ -161,3 +161,66 @@ resource "aws_cloudwatch_metric_alarm" "site_down" {
   alarm_actions       = local.notify
   ok_actions          = local.notify
 }
+
+# --- /ops status page: summary publisher -----------------------------------------
+# Every 6 hours, reads the uptime metric and the budget's month-to-date spend
+# (both free) and writes ops/summary.json. Budgets refresh a few times a day, so
+# running more often would add nothing.
+
+data "aws_caller_identity" "current" {}
+
+data "archive_file" "ops" {
+  type        = "zip"
+  source_file = var.ops_source
+  output_path = "${path.module}/ops.zip"
+}
+
+# The role is created in bootstrap/ (the pipeline cannot create IAM roles).
+data "aws_iam_role" "ops" {
+  name = "ops_publisher_${var.env}"
+}
+
+resource "aws_cloudwatch_log_group" "ops" {
+  name              = "/aws/lambda/ops-publisher-${var.env}"
+  retention_in_days = 30
+}
+
+resource "aws_lambda_function" "ops" {
+  filename         = data.archive_file.ops.output_path
+  function_name    = "ops-publisher-${var.env}"
+  role             = data.aws_iam_role.ops.arn
+  handler          = "publisher.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 30
+  source_code_hash = data.archive_file.ops.output_base64sha256
+
+  environment {
+    variables = {
+      BUCKET      = var.ops_bucket
+      BUDGET_NAME = var.budget_name
+      ACCOUNT_ID  = data.aws_caller_identity.current.account_id
+    }
+  }
+  tracing_config {
+    mode = "Active"
+  }
+  depends_on = [aws_cloudwatch_log_group.ops]
+}
+
+resource "aws_cloudwatch_event_rule" "ops" {
+  name                = "ops-publisher-${var.env}-schedule"
+  description         = "Refresh the /ops summary every 6 hours"
+  schedule_expression = "rate(6 hours)"
+}
+
+resource "aws_cloudwatch_event_target" "ops" {
+  rule = aws_cloudwatch_event_rule.ops.name
+  arn  = aws_lambda_function.ops.arn
+}
+
+resource "aws_lambda_permission" "ops" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ops.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.ops.arn
+}
