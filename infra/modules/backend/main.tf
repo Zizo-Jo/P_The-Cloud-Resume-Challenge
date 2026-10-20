@@ -77,8 +77,9 @@ resource "aws_apigatewayv2_api" "api" {
   name          = "api-${var.env}"
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["*"]
-    allow_methods = ["GET", "POST", "OPTIONS"]
+    # Only the site itself may call the API from a browser.
+    allow_origins = ["https://zihao-cv.site", "https://www.zihao-cv.site"]
+    allow_methods = ["GET", "OPTIONS"]
   }
 }
 
@@ -86,6 +87,13 @@ resource "aws_apigatewayv2_stage" "stage" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
   auto_deploy = true
+
+  # Caps abuse and cost. A Lambda reserved-concurrency cap is not possible
+  # here: the account limit is 10 and AWS requires 10 to stay unreserved.
+  default_route_settings {
+    throttling_rate_limit  = 10
+    throttling_burst_limit = 20
+  }
 }
 
 resource "aws_apigatewayv2_integration" "int" {

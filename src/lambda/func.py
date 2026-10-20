@@ -1,7 +1,10 @@
 import json
 import boto3
+import logging
 import os
-from decimal import Decimal
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # DynamoDB
 dynamodb = boto3.resource('dynamodb')
@@ -26,16 +29,13 @@ def lambda_handler(event, context):
         
         return {
             'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',  
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-            },
+            # CORS headers are added by API Gateway (see the backend module).
             'body': json.dumps({'count': visit_count})
         }
-    except Exception as e:
-        print(e)
+    except Exception:
+        # Full details go to CloudWatch; the caller gets nothing internal.
+        logger.exception("Failed to update the visitor count")
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': 'Internal server error'})
         }

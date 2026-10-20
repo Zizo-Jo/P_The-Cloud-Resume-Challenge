@@ -120,4 +120,4 @@ terraform plan -out=tfplan && terraform apply tfplan
 
 ## 🗺️ Roadmap
 
-Hardening in progress, tracked as the `TODO Phase 2` lines in [`.checkov.yaml`](.checkov.yaml): API access logging, security response headers, Lambda concurrency cap, S3 versioning, DynamoDB point-in-time recovery, CORS restricted to the site's origin, and Lambda logging with retention.
+Hardening in progress, tracked as the `TODO Phase 2` lines in [`.checkov.yaml`](.checkov.yaml): API access logging, security response headers, S3 versioning, DynamoDB point-in-time recovery and X-Ray tracing.
