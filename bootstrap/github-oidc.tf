@@ -300,8 +300,9 @@ data "aws_iam_policy_document" "apply_permissions" {
   }
 
   # API Gateway sets up access logging through CloudWatch log deliveries,
-  # which cannot be scoped to a resource. PutResourcePolicy is deliberately
-  # NOT granted: the /aws/vendedlogs/ prefix makes it unnecessary.
+  # which cannot be scoped to a resource. API Gateway also checks the caller
+  # for PutResourcePolicy (even with the /aws/vendedlogs/ prefix). That policy
+  # only controls which AWS services may deliver logs; it grants no IAM power.
   statement {
     sid = "ManageLogDeliveries"
     actions = [
@@ -311,6 +312,7 @@ data "aws_iam_policy_document" "apply_permissions" {
       "logs:DeleteLogDelivery",
       "logs:ListLogDeliveries",
       "logs:DescribeResourcePolicies",
+      "logs:PutResourcePolicy",
     ]
     resources = ["*"]
   }
