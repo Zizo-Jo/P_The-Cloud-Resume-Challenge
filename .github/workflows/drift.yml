@@ -19,8 +19,8 @@ jobs:
   drift:
     name: terraform drift check
     runs-on: ubuntu-latest
-    # The "drift" Environment gives this job its own OIDC identity, which the
-    # read-only plan role trusts (scheduled runs have no pull_request identity).
+    # The "drift" Environment gives this job its own OIDC identity, trusted only
+    # by the drift role (scheduled runs have no pull_request identity).
     environment: drift
     permissions:
       id-token: write # OIDC token to assume the read-only plan role
@@ -29,6 +29,7 @@ jobs:
     env:
       TF_IN_AUTOMATION: "true"
       TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }} # must match what deploy uses, or it shows as drift
+      OPS_BUCKET: zihao-resume-dev-2026-v99 # where the /ops status files live
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -39,10 +40,10 @@ jobs:
           terraform_version: 1.16.6
           terraform_wrapper: false # keep real exit codes and plain output
 
-      # Same read-only role the pull requests use.
+      # Own role: everything the PR role can read, plus writing ops/drift.json.
       - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
-          role-to-assume: arn:aws:iam::030342421998:role/github-actions-plan
+          role-to-assume: arn:aws:iam::030342421998:role/github-actions-drift
           aws-region: us-east-1
 
       - name: Terraform plan
@@ -98,3 +99,16 @@ jobs:
               exit 1
               ;;
           esac
+
+      # Status for the public /ops page; only when the plan itself worked.
+      - name: Publish drift status
+        if: always() && (steps.plan.outputs.exitcode == '0' || steps.plan.outputs.exitcode == '2')
+        env:
+          EXITCODE: ${{ steps.plan.outputs.exitcode }}
+        run: |
+          jq -n \
+            --arg checked_at "$(date -u +%FT%TZ)" \
+            --argjson drift "$([ "$EXITCODE" = 2 ] && echo true || echo false)" \
+            '{checked_at: $checked_at, drift: $drift}' > drift.json
+          aws s3 cp drift.json "s3://$OPS_BUCKET/ops/drift.json" \
+            --content-type application/json --cache-control "max-age=60"
