@@ -12,6 +12,29 @@ table_name = os.environ.get('TABLE_NAME')
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
+    # API Gateway sets routeKey; anything else (tests, manual invokes) counts a visit.
+    if event.get('routeKey') == 'GET /health':
+        return health()
+    return count_visit()
+
+
+def health():
+    """Read-only check used by the smoke test: does not change the counter."""
+    try:
+        item = table.get_item(Key={'id': 'count'}).get('Item', {})
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'status': 'ok', 'count': int(item.get('visitor_count', 0))})
+        }
+    except Exception:
+        logger.exception("Health check failed")
+        return {
+            'statusCode': 503,
+            'body': json.dumps({'status': 'unavailable'})
+        }
+
+
+def count_visit():
     try:
         # Atomic increment of visitor count
         response = table.update_item(
@@ -23,10 +46,9 @@ def lambda_handler(event, context):
             },
             ReturnValues="UPDATED_NEW"
         )
-        
-        
+
         visit_count = int(response['Attributes']['visitor_count'])
-        
+
         return {
             'statusCode': 200,
             # CORS headers are added by API Gateway (see the backend module).
