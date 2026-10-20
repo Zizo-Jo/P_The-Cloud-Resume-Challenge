@@ -23,6 +23,7 @@ skip-check:
   - CKV_AWS_144 # S3 cross-region replication: overkill for one HTML file
   - CKV2_AWS_62 # S3 event notifications: nothing consumes them
   - CKV_AWS_115 # Lambda reserved concurrency: impossible, account limit is 10 and AWS keeps 10 unreserved; API throttling caps abuse instead
+  - CKV_AWS_26 # SNS topic encryption: CloudWatch alarms cannot publish to a topic using the AWS-managed key, so it needs a ~$1/month customer key; the topic carries alarm text only
   - CKV_AWS_158 # Log group KMS customer-managed key: ~$1/month; logs are already encrypted with AWS-owned keys
   - CKV_AWS_338 # Log retention of 1 year: compliance rule; 30 days is enough for a visitor counter
 
