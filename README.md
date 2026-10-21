@@ -57,6 +57,7 @@ flowchart LR
 - **Dependency updates.** Dependabot proposes grouped updates for actions, test dependencies and Terraform providers, only for releases at least 7 days old.
 - **State safety.** Terraform state lives in a private, versioned, encrypted S3 bucket with S3-native locking. `prevent_destroy` guards the website bucket, the counter table and the state bucket.
 - **Least-privilege Lambda.** The function's role allows only `UpdateItem` on the counter item.
+- **Build provenance.** The deploy builds the Lambda zips reproducibly, signs a SLSA provenance attestation for each (Sigstore, keyless), and the apply job refuses any zip that was not attested by this workflow on `main` at the same commit.
 
 ## 🛠️ Tech Stack
 
@@ -91,7 +92,9 @@ flowchart LR
 │   ├── lambda/func.py      # Visitor counter
 │   └── website/index.html  # Frontend
 ├── tests/                  # Lambda unit tests (pytest + moto)
-├── scripts/smoke_test.sh   # Post-deploy check of the live site and API
+├── scripts/
+│   ├── build_lambdas.py    # Reproducible Lambda zips (signed with provenance in the deploy)
+│   └── smoke_test.sh       # Post-deploy check of the live site and API
 ├── .checkov.yaml           # Security-scan baseline, every skip has a reason
 ├── .tflint.hcl             # tflint AWS ruleset
 └── cloudresume.drawio      # Architecture diagram source

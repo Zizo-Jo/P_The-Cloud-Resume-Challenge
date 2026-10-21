@@ -17,9 +17,9 @@ variable "api_id" {
   type = string
 }
 
-variable "uptime_source" {
+variable "uptime_zip" {
   type        = string
-  description = "Path to the uptime-check Lambda source file."
+  description = "Path to the uptime-check Lambda package built by scripts/build_lambdas.py."
 }
 
 variable "site_url" {
@@ -30,9 +30,9 @@ variable "health_url" {
   type = string
 }
 
-variable "ops_source" {
+variable "ops_zip" {
   type        = string
-  description = "Path to the ops-publisher Lambda source file."
+  description = "Path to the ops-publisher Lambda package built by scripts/build_lambdas.py."
 }
 
 variable "ops_bucket" {

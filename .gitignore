@@ -21,3 +21,6 @@ Thumbs.db
 # --- Saved Terraform plans (can contain sensitive values) ---
 *.tfplan
 tfplan
+
+# --- Lambda packages (scripts/build_lambdas.py) ---
+build/

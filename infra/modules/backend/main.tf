@@ -17,12 +17,6 @@ resource "aws_dynamodb_table" "t" {
   }
 }
 
-data "archive_file" "zip" {
-  type        = "zip"
-  source_file = var.lambda_source
-  output_path = "${path.module}/func.zip"
-}
-
 resource "aws_iam_role" "iam" {
   name = "iam_for_lambda_${var.env}"
   assume_role_policy = jsonencode({
@@ -82,12 +76,13 @@ resource "aws_iam_role_policy" "policy" {
 }
 
 resource "aws_lambda_function" "func" {
-  filename         = data.archive_file.zip.output_path
+  # Built and attested in CI before Terraform runs (scripts/build_lambdas.py).
+  filename         = var.lambda_zip
   function_name    = "counter-${var.env}"
   role             = aws_iam_role.iam.arn
   handler          = "func.lambda_handler"
   runtime          = "python3.12"
-  source_code_hash = data.archive_file.zip.output_base64sha256
+  source_code_hash = filebase64sha256(var.lambda_zip)
   environment {
     variables = { TABLE_NAME = aws_dynamodb_table.t.name }
   }

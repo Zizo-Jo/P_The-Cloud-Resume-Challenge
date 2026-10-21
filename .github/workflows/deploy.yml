@@ -19,7 +19,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Build the Lambda packages and sign a provenance attestation for each one:
+  # "this file, with this SHA-256, was built by this workflow, from this repo,
+  # at this commit". Signed with Sigstore using the job's OIDC identity, so
+  # there is no signing key to store or leak. Recorded in a public log.
+  build:
+    name: build and attest the Lambdas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Sigstore signing identity
+      attestations: write # store the attestation in the repo
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the Lambda packages
+        run: python3 scripts/build_lambdas.py
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: build/*.zip
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lambdas
+          path: build/
+          retention-days: 7
+          if-no-files-found: error
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     # The apply role only trusts jobs in this environment, and the environment
     # only accepts the main branch.
@@ -27,6 +58,7 @@ jobs:
     permissions:
       id-token: write # OIDC token to assume the apply role
       contents: read
+      attestations: read # verify the Lambda attestations
     env:
       TF_IN_AUTOMATION: "true"
       SITE_URL: https://zihao-cv.site
@@ -36,6 +68,28 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: lambdas
+          path: build/
+
+      # Refuse to deploy a package unless it was attested by this workflow,
+      # on main, at exactly this commit, on a GitHub-hosted runner. Anything
+      # swapped in between build and deploy fails here.
+      - name: Verify the Lambda provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for zip in build/*.zip; do
+            gh attestation verify "$zip" \
+              --repo "$REPO" \
+              --signer-workflow "$REPO/.github/workflows/deploy.yml" \
+              --source-ref refs/heads/main \
+              --source-digest "$GITHUB_SHA" \
+              --deny-self-hosted-runners
+          done
 
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:

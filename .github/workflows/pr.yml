@@ -144,6 +144,11 @@ jobs:
           role-to-assume: arn:aws:iam::030342421998:role/github-actions-plan
           aws-region: us-east-1
 
+      # Same reproducible zips as the deploy, so the plan only shows a Lambda
+      # change when the source really changed.
+      - name: Build the Lambda packages
+        run: python3 scripts/build_lambdas.py
+
       - name: Terraform plan
         id: plan
         working-directory: infra/envs/prod
