@@ -89,12 +89,6 @@ resource "aws_cloudwatch_metric_alarm" "api_latency" {
 # publishes ZihaoCV/Up (1 or 0). CloudWatch Synthetics would do the same for
 # ~$10/month, thirty times the cost of the whole site.
 
-data "archive_file" "uptime" {
-  type        = "zip"
-  source_file = var.uptime_source
-  output_path = "${path.module}/uptime.zip"
-}
-
 # The role is created in bootstrap/ (the pipeline cannot create IAM roles).
 data "aws_iam_role" "uptime" {
   name = "uptime_lambda_${var.env}"
@@ -106,13 +100,13 @@ resource "aws_cloudwatch_log_group" "uptime" {
 }
 
 resource "aws_lambda_function" "uptime" {
-  filename         = data.archive_file.uptime.output_path
+  filename         = var.uptime_zip # built and attested in CI
   function_name    = "uptime-${var.env}"
   role             = data.aws_iam_role.uptime.arn
   handler          = "check.lambda_handler"
   runtime          = "python3.12"
   timeout          = 30
-  source_code_hash = data.archive_file.uptime.output_base64sha256
+  source_code_hash = filebase64sha256(var.uptime_zip)
 
   environment {
     variables = {
@@ -169,12 +163,6 @@ resource "aws_cloudwatch_metric_alarm" "site_down" {
 
 data "aws_caller_identity" "current" {}
 
-data "archive_file" "ops" {
-  type        = "zip"
-  source_file = var.ops_source
-  output_path = "${path.module}/ops.zip"
-}
-
 # The role is created in bootstrap/ (the pipeline cannot create IAM roles).
 data "aws_iam_role" "ops" {
   name = "ops_publisher_${var.env}"
@@ -186,13 +174,13 @@ resource "aws_cloudwatch_log_group" "ops" {
 }
 
 resource "aws_lambda_function" "ops" {
-  filename         = data.archive_file.ops.output_path
+  filename         = var.ops_zip # built and attested in CI
   function_name    = "ops-publisher-${var.env}"
   role             = data.aws_iam_role.ops.arn
   handler          = "publisher.lambda_handler"
   runtime          = "python3.12"
   timeout          = 30
-  source_code_hash = data.archive_file.ops.output_base64sha256
+  source_code_hash = filebase64sha256(var.ops_zip)
 
   environment {
     variables = {

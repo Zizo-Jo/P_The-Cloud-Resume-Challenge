@@ -19,7 +19,8 @@ module "backend" {
   source = "../../modules/backend"
   env    = var.name_suffix
 
-  lambda_source = "${path.module}/../../../src/lambda/func.py"
+  # Lambda packages come from scripts/build_lambdas.py (run it before plan).
+  lambda_zip = "${path.module}/../../../build/counter.zip"
 }
 
 module "frontend" {
@@ -38,10 +39,10 @@ module "monitoring" {
   alert_email          = var.alert_email
   lambda_function_name = module.backend.function_name
   api_id               = module.backend.api_id
-  uptime_source        = "../../../src/uptime/check.py"
+  uptime_zip           = "${path.module}/../../../build/uptime.zip"
   site_url             = "https://zihao-cv.site"
   health_url           = module.backend.health_endpoint
-  ops_source           = "../../../src/ops/publisher.py"
+  ops_zip              = "${path.module}/../../../build/ops.zip"
   ops_bucket           = var.bucket_name
   budget_name          = "My Zero-Spend Budget"
 }
