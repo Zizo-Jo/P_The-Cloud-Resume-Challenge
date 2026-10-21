@@ -1,0 +1,45 @@
+# Dependabot version updates: a weekly PR when something we depend on has a
+# newer release. Every update PR runs the same checks and terraform plan as a
+# human PR, so the tests are what make updating safe.
+# (Security updates for known CVEs are a separate repo setting, already on.)
+version: 2
+updates:
+  # Actions are pinned to full commit SHAs; Dependabot bumps the SHA and the
+  # "# vX.Y.Z" comment next to it. One grouped PR instead of one per action.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+
+  # Test dependencies (pytest, moto, boto3). The Lambdas themselves only use
+  # the standard library and the boto3 that the runtime provides.
+  - package-ecosystem: pip
+    directory: /tests
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      test-deps:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
+
+  # Terraform providers in the lock files. Monthly: provider releases are
+  # frequent and rarely urgent.
+  - package-ecosystem: terraform
+    directories:
+      - /infra/envs/prod
+      - /bootstrap
+    schedule:
+      interval: monthly
+    groups:
+      providers:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
