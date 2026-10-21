@@ -2,6 +2,7 @@
 
 [![PR checks](https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge/actions/workflows/pr.yml/badge.svg)](https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge/actions/workflows/pr.yml)
 [![Deploy](https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge/actions/workflows/deploy.yml/badge.svg)](https://github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge/actions/workflows/deploy.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge/badge)](https://scorecard.dev/viewer/?uri=github.com/Zizo-Jo/P_The-Cloud-Resume-Challenge)
 [![Terraform](https://img.shields.io/badge/Terraform-1.10+-purple?logo=terraform)](https://www.terraform.io/)
 [![AWS](https://img.shields.io/badge/AWS-Serverless-orange?logo=amazon-aws)](https://aws.amazon.com/)
 [![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://www.python.org/)
@@ -52,6 +53,8 @@ flowchart LR
 - **CI cannot change its own permissions.** The OIDC roles live in `bootstrap/` and are applied by hand.
 - **Security scanning.** Checkov runs on every PR. Known findings are listed with a reason in [`.checkov.yaml`](.checkov.yaml); any new finding fails the build.
 - **Pinned actions.** Third-party GitHub Actions are pinned to full commit SHAs, and every job declares minimal permissions.
+- **Workflow scanning.** **zizmor** checks the workflows on every PR (script injection, over-broad permissions, impostor commits). **OpenSSF Scorecard** grades the repo weekly.
+- **Dependency updates.** Dependabot proposes grouped updates for actions, test dependencies and Terraform providers, only for releases at least 7 days old.
 - **State safety.** Terraform state lives in a private, versioned, encrypted S3 bucket with S3-native locking. `prevent_destroy` guards the website bucket, the counter table and the state bucket.
 - **Least-privilege Lambda.** The function's role allows only `UpdateItem` on the counter item.
 - **Build provenance.** The deploy builds the Lambda zips reproducibly, signs a SLSA provenance attestation for each (Sigstore, keyless), and the apply job refuses any zip that was not attested by this workflow on `main` at the same commit.

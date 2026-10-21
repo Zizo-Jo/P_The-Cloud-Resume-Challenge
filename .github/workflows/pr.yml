@@ -78,6 +78,27 @@ jobs:
       - run: pip install checkov==3.3.29
       - run: checkov --config-file .checkov.yaml --directory infra --directory bootstrap
 
+  # Static analysis of the workflows themselves: script injection, excessive
+  # permissions, unpinned actions, credential leaks through checkout, etc.
+  zizmor:
+    name: zizmor (workflow security)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: pip install zizmor==1.31.1
+      # Online mode: also checks that each pinned SHA really belongs to the
+      # action it claims to be (impostor commits) and flags known-vulnerable actions.
+      - run: zizmor --format=github .
+        env:
+          GH_TOKEN: ${{ github.token }}
+
   lambda-tests:
     name: lambda tests (pytest)
     runs-on: ubuntu-latest
