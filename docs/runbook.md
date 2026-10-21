@@ -1,7 +1,8 @@
 # Runbook
 
 What to do when something alerts. Every alarm email links to a section here.
-All commands assume `export AWS_PROFILE=zihao-admin AWS_REGION=us-east-1` after `aws sso login --sso-session zihao`.
+All commands assume `export AWS_PROFILE=zihao-admin AWS_REGION=us-east-1 AWS_PAGER=""` after `aws sso login --sso-session zihao`.
+`AWS_PAGER=""` matters: without it, output opens in a pager (`(END)`, press `q`), the command looks stuck, and running it again can apply a change twice (Game Day 2026-10-21).
 
 **The first rule: do not fix production by hand.** Fix it with a pull request (a `git revert` is a perfectly good PR). A change made in the console is caught by the nightly drift check and overwritten by the next deploy.
 
@@ -23,16 +24,18 @@ Every alarm also emails when it recovers (state `OK`). If you see the recovery m
 
 ## lambda-errors
 
-**Means:** `counter-dev` raised an exception. Visitors see no counter (the page itself still loads).
+**Means:** `counter-dev` raised an **unhandled** exception: a crash, a timeout, an import error. Visitors see no counter (the page itself still loads).
+
+> **This alarm does NOT fire for DynamoDB errors** such as `AccessDeniedException`: the handler catches them and returns 500/503, so Lambda counts the run as a success. Those show up as [api-5xx](#api-5xx) and [site-down](#site-down). (Found in Game Day 2026-10-21.)
 
 1. **Read the error.** The Lambda logs the full stack trace and returns only a generic message:
    ```
    aws logs tail /aws/lambda/counter-dev --since 30m --filter-pattern "ERROR"
    ```
 2. **Typical causes**
-   - `AccessDeniedException` -> the Lambda role lost its DynamoDB permission (someone edited it, or a bad change). The nightly drift check will also report it.
-   - `ResourceNotFoundException` -> the table is missing; go to [restore the counter table](#restore-the-counter-table).
-   - A code bug from the latest deploy -> step 3.
+   - A code bug from the latest deploy (syntax error, bad import) -> step 3.
+   - Timeout -> check X-Ray (step 4) for the slow call.
+   - DynamoDB errors are handled in the code, see [api-5xx](#api-5xx).
 3. **Was it the last deploy?** `gh run list --workflow deploy.yml --limit 3`. If the error started right after one: [roll back a bad deploy](#roll-back-a-bad-deploy).
 4. **Need the timeline of one request?** X-Ray: CloudWatch -> X-Ray traces -> filter `service(id(name: "counter-dev"))`.
 
@@ -50,14 +53,28 @@ Every alarm also emails when it recovers (state `OK`). If you see the recovery m
 
 ## api-5xx
 
-**Means:** API Gateway returned a 5xx to a visitor. Usually the Lambda failed, so look at [lambda-errors](#lambda-errors) first.
+**Means:** API Gateway returned a 5xx to a visitor. This is the **first** alarm for most backend problems, including the ones the Lambda catches itself (Game Day 2026-10-21: detected a removed IAM permission in 3 minutes).
 
 1. Which route and when? The access log has one JSON line per request:
    ```
    aws logs tail /aws/vendedlogs/apigateway/api-dev --since 30m --filter-pattern '{ $.status = 5* }'
    ```
-2. `integrationStatus` 5xx (or missing) = the Lambda; `status` 5xx with `integrationStatus` 200 = API Gateway itself (check the AWS Health Dashboard).
-3. Cause found in the code -> [roll back a bad deploy](#roll-back-a-bad-deploy).
+2. Read `integrationStatus` correctly:
+   - `integrationStatus` **200** + `status` 500/503 = the Lambda **ran** and returned an error on purpose (it caught an exception). The reason is in the Lambda log, step 3.
+   - `integrationStatus` 5xx or missing = the Lambda crashed or timed out -> [lambda-errors](#lambda-errors).
+   - No Lambda log line at all for that request = API Gateway itself (check the AWS Health Dashboard).
+3. **The real error is in the Lambda log:**
+   ```
+   aws logs tail /aws/lambda/counter-dev --since 30m --filter-pattern ERROR
+   ```
+   - `AccessDeniedException ... dynamodb:GetItem/UpdateItem` -> the Lambda role lost its permission. **Who changed it, when:**
+     ```
+     aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=PutRolePolicy --max-results 3 \
+       --query 'Events[].[EventTime,Username]' --output text
+     ```
+     Fix: re-run the deploy (`gh workflow run deploy.yml --ref main`); Terraform puts the reviewed policy back. Do not re-type the policy by hand: it is easy to drop the `LeadingKeys` condition.
+   - `ResourceNotFoundException` -> the table is missing; [restore the counter table](#restore-the-counter-table).
+4. Cause found in the code -> [roll back a bad deploy](#roll-back-a-bad-deploy).
 
 ## api-latency
 
@@ -100,7 +117,11 @@ The deploy workflow applies the revert and runs the smoke test.
 
 ### Roll back the website
 
-The bucket is versioned, so a bad `index.html` can be restored in minutes. This is an **emergency** measure: Terraform will notice the file no longer matches the code, so follow it with a normal PR.
+The bucket is versioned, so a bad `index.html` can be restored in minutes.
+
+**Which version is the good one?** Not the latest (that is the bad one). Pick the newest version that is **older than the incident** and has a **normal size** (the real page is ~45 KB; Game Day 2026-10-21's broken upload was 70 bytes). Version IDs are random strings: identify versions by time and size.
+
+If the restored version is the one in `main`, Terraform sees no difference (same ETag). If it is not, follow up with a normal PR. If the bad file never came from the repo, **re-running the deploy** also fixes it (`gh workflow run deploy.yml --ref main`), just slower.
 
 ```
 B=zihao-resume-dev-2026-v99
@@ -126,13 +147,22 @@ aws dynamodb wait table-exists --table-name visitors-restored
 # 2. Read the good value
 aws dynamodb get-item --table-name visitors-restored --key '{"id":{"S":"count"}}'
 
-# 3. Write it into the live table (admin credentials; the Lambda cannot do this)
-aws dynamodb put-item --table-name visitors-dev \
-  --item '{"id":{"S":"count"},"visitor_count":{"N":"<VALUE>"}}'
+# 3. Add it back to the live table, ATOMICALLY (admin credentials; the Lambda cannot do this)
+#    Visits keep arriving after the damage, so the right value is BACKUP + CURRENT.
+#    Do not read, add in your head and put-item: a visit in between is lost.
+#    ADD is not idempotent: running it twice adds twice. The condition makes a
+#    second run fail instead (CURRENT_MAX = the live value right now + a margin).
+aws dynamodb update-item --table-name visitors-dev --key '{"id":{"S":"count"}}' \
+  --update-expression "ADD visitor_count :backup" \
+  --condition-expression "visitor_count < :max" \
+  --expression-attribute-values '{":backup":{"N":"<VALUE>"},":max":{"N":"<CURRENT_MAX>"}}' \
+  --return-values UPDATED_NEW
 
-# 4. Clean up (the restored table costs money while it exists)
+# 4. Check the live value, THEN clean up (the restored table costs money while it exists).
+#    Read the table name twice: visitors-RESTORED, not visitors-dev.
 aws dynamodb delete-table --table-name visitors-restored
 ```
+Expect 5–20 minutes for the restore even for one item. `LatestRestorableDateTime` lags about 5 minutes behind now.
 If `visitors-dev` itself was deleted: restore it under the original name instead, then `terraform import` it (see the import block pattern in `bootstrap/`).
 
 ### Confirm the alert subscription
