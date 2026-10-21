@@ -52,9 +52,9 @@ flowchart LR
 - **CI cannot change its own permissions.** The OIDC roles live in `bootstrap/` and are applied by hand.
 - **Security scanning.** Checkov runs on every PR. Known findings are listed with a reason in [`.checkov.yaml`](.checkov.yaml); any new finding fails the build.
 - **Pinned actions.** Third-party GitHub Actions are pinned to full commit SHAs, and every job declares minimal permissions.
-- **Build provenance.** The deploy builds the Lambda zips reproducibly, signs a SLSA provenance attestation for each (Sigstore, keyless), and the apply job refuses any zip that was not attested by this workflow on `main` at the same commit.
 - **State safety.** Terraform state lives in a private, versioned, encrypted S3 bucket with S3-native locking. `prevent_destroy` guards the website bucket, the counter table and the state bucket.
 - **Least-privilege Lambda.** The function's role allows only `UpdateItem` on the counter item.
+- **Build provenance.** The deploy builds the Lambda zips reproducibly, signs a SLSA provenance attestation for each (Sigstore, keyless), and the apply job refuses any zip that was not attested by this workflow on `main` at the same commit.
 
 ## 🛠️ Tech Stack
 
