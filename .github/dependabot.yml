@@ -2,6 +2,10 @@
 # newer release. Every update PR runs the same checks and terraform plan as a
 # human PR, so the tests are what make updating safe.
 # (Security updates for known CVEs are a separate repo setting, already on.)
+#
+# cooldown: only propose a release once it is 7 days old. Hijacked releases
+# (e.g. tj-actions/changed-files, March 2025) are usually caught and pulled
+# within days, so waiting a week keeps them out of this repo.
 version: 2
 updates:
   # Actions are pinned to full commit SHAs; Dependabot bumps the SHA and the
@@ -11,6 +15,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ["*"]
@@ -24,6 +30,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      default-days: 7
     groups:
       test-deps:
         patterns: ["*"]
@@ -38,6 +46,8 @@ updates:
       - /bootstrap
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       providers:
         patterns: ["*"]
