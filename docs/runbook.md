@@ -93,6 +93,11 @@ Every alarm also emails when it recovers (state `OK`). If you see the recovery m
    aws logs tail /aws/lambda/uptime-dev --since 30m
    ```
    `failed checks: site` = page. `failed checks: api` = health endpoint. No recent lines at all = the checker is dead (check the EventBridge rule `uptime-dev-schedule`).
+   Each failing check has already been retried once, so a single dropped connection never gets here.
+   The line also reports `cloudfront direct: ok|FAILED`, the same page fetched from CloudFront **without Cloudflare**:
+   - `site` failed + `cloudfront direct: ok` -> the AWS side is fine; the problem is the Cloudflare hop (Cloudflare status page, the DNS record, the SSL mode). Real visitors may or may not be affected: they reach other Cloudflare locations.
+   - `site` failed + `cloudfront direct: FAILED` -> CloudFront or S3; continue with step 2.
+   - The metric `ZihaoCV/CloudFrontDirectUp` keeps the history of that diagnostic check.
 2. **Page down?**
    - `curl -I https://zihao-cv.site` — Cloudflare error (52x) -> CloudFront/origin; check the CloudFront distribution status and that `index.html` exists in the bucket.
    - **Certificate or DNS?** An expired ACM certificate or a changed Cloudflare record shows as a TLS/connection error. ACM renews itself only while the DNS validation record exists in Cloudflare.

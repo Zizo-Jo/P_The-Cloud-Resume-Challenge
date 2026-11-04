@@ -26,6 +26,11 @@ variable "site_url" {
   type = string
 }
 
+variable "cdn_url" {
+  type        = string
+  description = "The site straight from CloudFront (skipping Cloudflare), for the diagnostic check."
+}
+
 variable "health_url" {
   type = string
 }
