@@ -42,6 +42,7 @@ module "monitoring" {
   uptime_zip           = "${path.module}/../../../build/uptime.zip"
   site_url             = "https://zihao-cv.site"
   health_url           = module.backend.health_endpoint
+  cdn_url              = "https://${module.frontend.cloudfront_url}"
   ops_zip              = "${path.module}/../../../build/ops.zip"
   ops_bucket           = var.bucket_name
   budget_name          = "My Zero-Spend Budget"
