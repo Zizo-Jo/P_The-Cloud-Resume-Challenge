@@ -100,18 +100,20 @@ resource "aws_cloudwatch_log_group" "uptime" {
 }
 
 resource "aws_lambda_function" "uptime" {
-  filename         = var.uptime_zip # built and attested in CI
-  function_name    = "uptime-${var.env}"
-  role             = data.aws_iam_role.uptime.arn
-  handler          = "check.lambda_handler"
-  runtime          = "python3.12"
-  timeout          = 30
+  filename      = var.uptime_zip # built and attested in CI
+  function_name = "uptime-${var.env}"
+  role          = data.aws_iam_role.uptime.arn
+  handler       = "check.lambda_handler"
+  runtime       = "python3.12"
+  # Worst case: three checks, each up to 2 x 8 s with a 2 s pause between.
+  timeout          = 60
   source_code_hash = filebase64sha256(var.uptime_zip)
 
   environment {
     variables = {
       SITE_URL   = var.site_url
       HEALTH_URL = var.health_url
+      CDN_URL    = var.cdn_url
     }
   }
   tracing_config {
